@@ -1,25 +1,28 @@
-Project Structure Documentation
-Overview
+# Project Structure Documentation
+
+## Overview
 
 Dự án được xây dựng theo mô hình Layered Architecture tương tự như Spring Boot, nhưng sử dụng PHP thuần (Pure PHP). Mục tiêu của việc phân chia này là giúp code dễ bảo trì, dễ mở rộng và giúp các thành viên trong nhóm dễ dàng xác định vị trí cần chỉnh sửa khi phát triển tính năng mới.
 
-Luồng xử lý của hệ thống:
+### Luồng xử lý của hệ thống
 
 Request
-    ↓
+↓
 Router
-    ↓
+↓
 Controller
-    ↓
+↓
 Service
-    ↓
+↓
 Repository Interface
-    ↓
+↓
 Repository Implementation
-    ↓
+↓
 Database
 
-Project Structure
+## Project Structure
+
+```
 ECOM-LTW/
 │
 ├── public/                         # Điểm khởi động của ứng dụng
@@ -47,11 +50,13 @@ ECOM-LTW/
 │   │   └── ...
 │   │
 │   ├── repositories/
-│   │   ├── UserRepository.php              # Interface
+│   │   ├── IUserRepository.php              # Interface
+│   │   ├── UserRepository.php
 │   │   ├── ProductRepository.php
 │   │   ├── OrderRepository.php
 │   │   │
 │   │   └── impl/                           # Triển khai SQL thực tế
+│   │       ├── UserRepository.php
 │   │       ├── UserRepositoryImpl.php
 │   │       ├── ProductRepositoryImpl.php
 │   │       ├── OrderRepositoryImpl.php
@@ -86,3 +91,4 @@ ECOM-LTW/
 │
 ├── README.md
 └── .gitignore
+```
