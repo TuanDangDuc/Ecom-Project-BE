@@ -1,0 +1,34 @@
+<?php
+
+class CategoriesController {
+    private CategoriesService $categoriesService;
+    
+    public function __construct(
+        CategoriesService $categoriesService
+    ) {
+        $this->CategoriesService = $categoriesService;
+    }
+
+    public function index(): void
+    {
+        $result = $this->CategoriesService->getAllCategories();
+        
+        Response::json($result);
+    }
+
+    public function store(): void
+    {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $name = $data['name'] ?? null;
+
+        if (!$name) {
+            Response::json(['error' => 'Name is required'], 400);
+            return;
+        }
+
+        $result = $this->CategoriesService->createCategory($name);
+        
+        $status = $result['success'] ? 200 : 400;
+        Response::json($result, $status);
+    }
+}
