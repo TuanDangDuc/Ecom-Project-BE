@@ -60,5 +60,29 @@ class UserRepository implements IUserRepository
         return new Users($data['username'], $data['password'], Role::from($data['role'] ?? 'USER'));
     }
 
+    public function findByEmail(string $email): ?Users
+    {
+        $sql = "select * from users where email = ?";
+
+        $statement = $this->db->prepare($sql);
+        $statement->execute([$email]);
+        
+        $data = $statement->fetch();
+
+        if (!$data) {
+            return null;
+        }
+
+        return new Users($data['username'], $data['password'], Role::from($data['role'] ?? 'USER'));
+    }
+
+    public function updatePasswordByEmail(string $email, string $hashedPassword): bool
+    {
+        $sql = "update users set password = ? where email = ?";
+
+        $statement = $this->db->prepare($sql);
+        return $statement->execute([$hashedPassword, $email]);
+    }
+
 
 }
