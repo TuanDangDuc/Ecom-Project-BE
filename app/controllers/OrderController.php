@@ -17,13 +17,10 @@ class OrderController
             return;
         }
 
-        $data = json_decode(file_get_contents('php://input'), true);
-        if ($data === null) {
-            Response::json(['success' => false, 'message' => 'Invalid JSON input.'], 400);
-            return;
-        }
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        $request = new CheckoutDtoRequest($data);
 
-        $result = $this->orderService->checkout($userId, $data);
+        $result = $this->orderService->checkout($userId, $request);
         $status = $result['success'] ? 200 : 400;
         Response::json($result, $status);
     }
@@ -61,17 +58,12 @@ class OrderController
             return;
         }
 
-        $data = json_decode(file_get_contents('php://input'), true);
-        $status = isset($data['status']) ? trim($data['status']) : '';
-
-        if (empty($status)) {
-            Response::json(['success' => false, 'message' => 'status is required.'], 400);
-            return;
-        }
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        $request = new UpdateOrderStatusDtoRequest($data);
 
         $role = AuthHelper::getCurrentUserRole(Database::connection());
 
-        $result = $this->orderService->updateOrderStatus($userId, $role, (int)$id, $status);
+        $result = $this->orderService->updateOrderStatus($userId, $role, (int)$id, $request);
         $httpStatus = $result['success'] ? 200 : 400;
         Response::json($result, $httpStatus);
     }

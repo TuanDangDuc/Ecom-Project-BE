@@ -21,48 +21,48 @@ class OrderRepository implements IOrderRepository
         $this->db->rollBack();
     }
 
-    public function createOrder(array $orderData): int
+    public function createOrder(Orders $order): int
     {
         $sql = "INSERT INTO orders (orderCode, userId, recipientName, recipientPhone, note, subtotal, shippingFee, totalAmount, shippingAddressId)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            $orderData['orderCode'],
-            $orderData['userId'],
-            $orderData['recipientName'],
-            $orderData['recipientPhone'],
-            $orderData['note'],
-            $orderData['subtotal'],
-            $orderData['shippingFee'],
-            $orderData['totalAmount'],
-            $orderData['shippingAddressId']
+            $order->getOrderCode(),
+            $order->getUserId(),
+            $order->getRecipientName(),
+            $order->getRecipientPhone(),
+            $order->getNote(),
+            $order->getSubtotal(),
+            $order->getShippingFee(),
+            $order->getTotalAmount(),
+            $order->getShippingAddressId()
         ]);
         return (int)$this->db->lastInsertId();
     }
 
-    public function createOrderItem(array $itemData): bool
+    public function createOrderItem(OrderItem $item): bool
     {
         $sql = "INSERT INTO orderItem (orderId, quantity, priceAtPurchase, orderStatus, trackingNumber, shippingProvider, productVariantId)
                 VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
-            $itemData['orderId'],
-            $itemData['quantity'],
-            $itemData['priceAtPurchase'],
-            $itemData['orderStatus'],
-            $itemData['trackingNumber'] ?? null,
-            $itemData['shippingProvider'] ?? null,
-            $itemData['productVariantId']
+            $item->getOrderId(),
+            $item->getQuantity(),
+            $item->getPriceAtPurchase(),
+            $item->getOrderStatus(),
+            $item->getTrackingNumber(),
+            $item->getShippingProvider(),
+            $item->getProductVariantId()
         ]);
     }
 
-    public function findOrderById(int $orderId): ?array
+    public function findOrderById(int $orderId): ?Orders
     {
         $sql = "SELECT * FROM orders WHERE id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$orderId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
+        return $result ? new Orders($result) : null;
     }
 
     public function findUserOrders(int $userId): array
@@ -70,7 +70,13 @@ class OrderRepository implements IOrderRepository
         $sql = "SELECT * FROM orders WHERE userId = ? ORDER BY createdAt DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $orders = [];
+        foreach ($results as $row) {
+            $orders[] = new Orders($row);
+        }
+        return $orders;
     }
 
     public function getOrderItems(int $orderId): array
@@ -96,12 +102,14 @@ class OrderRepository implements IOrderRepository
         $stmt->execute([$orderId]);
         $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        foreach ($items as &$item) {
+        $orderItemObjects = [];
+        foreach ($items as $item) {
             if (isset($item['variantOptions'])) {
                 $item['variantOptions'] = json_decode($item['variantOptions'], true);
             }
+            $orderItemObjects[] = new OrderItem($item);
         }
-        return $items;
+        return $orderItemObjects;
     }
 
     public function updateOrderItemStatus(int $orderItemId, string $status): bool
@@ -118,13 +126,13 @@ class OrderRepository implements IOrderRepository
         return $stmt->execute([$status, $orderId]);
     }
 
-    public function getOrderItemById(int $orderItemId): ?array
+    public function getOrderItemById(int $orderItemId): ?OrderItem
     {
         $sql = "SELECT * FROM orderItem WHERE id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$orderItemId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
+        return $result ? new OrderItem($result) : null;
     }
 
     public function getVariantStock(int $productVariantId): int
