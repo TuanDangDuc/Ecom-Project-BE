@@ -45,3 +45,4 @@ storage/
 
 # Other
 composer.lock
+composer.phar

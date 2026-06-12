@@ -6,20 +6,21 @@ class CartRepository implements ICartRepository
         private PDO $db
     ){}
 
-    public function findCartByUserId(int $userId): ?array
+    public function findCartByUserId(int $userId): ?Carts
     {
         $sql = "SELECT * FROM carts WHERE userId = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
+        
+        return $result ? new Carts($result) : null;
     }
 
-    public function createCart(int $userId): int
+    public function createCart(Carts $cart): int
     {
-        $sql = "INSERT INTO carts (userId, totalCost) VALUES (?, 0.00)";
+        $sql = "INSERT INTO carts (userId, totalCost) VALUES (?, ?)";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$userId]);
+        $stmt->execute([$cart->getUserId(), $cart->getTotalCost() ?? 0.00]);
         return (int)$this->db->lastInsertId();
     }
 
@@ -45,38 +46,44 @@ class CartRepository implements ICartRepository
         $stmt->execute([$cartId]);
         $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Decode JSON options for frontend convenience
-        foreach ($items as &$item) {
+        $cartItemObjects = [];
+        foreach ($items as $item) {
             if (isset($item['variantOptions'])) {
                 $item['variantOptions'] = json_decode($item['variantOptions'], true);
             }
+            $cartItemObjects[] = new CartItem($item);
         }
-        return $items;
+        return $cartItemObjects;
     }
 
-    public function findCartItem(int $cartId, int $productVariantId): ?array
+    public function findCartItem(int $cartId, int $productVariantId): ?CartItem
     {
         $sql = "SELECT * FROM cartItem WHERE cartId = ? AND productVariantId = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$cartId, $productVariantId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
+        return $result ? new CartItem($result) : null;
     }
 
-    public function findCartItemById(int $cartItemId): ?array
+    public function findCartItemById(int $cartItemId): ?CartItem
     {
         $sql = "SELECT * FROM cartItem WHERE id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$cartItemId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
+        return $result ? new CartItem($result) : null;
     }
 
-    public function addCartItem(int $cartId, int $productVariantId, int $quantity, float $price): bool
+    public function addCartItem(CartItem $item): bool
     {
         $sql = "INSERT INTO cartItem (cartId, productVariantId, quantity, price) VALUES (?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$cartId, $productVariantId, $quantity, $price]);
+        return $stmt->execute([
+            $item->getCartId(), 
+            $item->getProductVariantId(), 
+            $item->getQuantity(), 
+            $item->getPriceAtAdded()
+        ]);
     }
 
     public function updateCartItemQuantity(int $cartItemId, int $quantity): bool

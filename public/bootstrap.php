@@ -27,6 +27,12 @@ require_once __DIR__ . '/../app/enum/AccountStatus.php';
  * Models
  */
 require_once __DIR__ . '/../app/models/Users.php';
+require_once __DIR__ . '/../app/models/Carts.php';
+require_once __DIR__ . '/../app/models/CartItem.php';
+require_once __DIR__ . '/../app/models/Orders.php';
+require_once __DIR__ . '/../app/models/OrderItem.php';
+require_once __DIR__ . '/../app/models/Reviews.php';
+require_once __DIR__ . '/../app/models/ReviewImage.php';
 
 /**
  * DTO Requests
@@ -36,6 +42,11 @@ require_once __DIR__ . '/../app/dto/request/LoginDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/ForgotPasswordDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/ResetPasswordDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/VerifyOtpDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/AddToCartDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/UpdateCartItemDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/CheckoutDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/UpdateOrderStatusDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/CreateReviewDtoRequest.php';
 
 /**
  * Mappers
