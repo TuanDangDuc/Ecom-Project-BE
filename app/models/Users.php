@@ -15,6 +15,13 @@ class Users
     private ?DateTime $createdAt = null;
     private ?DateTime $updatedAt = null;
 
+    public function __construct(String $username, String $password, Role $role)
+    {
+        $this->username = $username;
+        $this->password = $password;
+        $this->role = $role;
+    }
+    
     public function getId(): int
     {
         return $this->id;

@@ -31,4 +31,26 @@ class AuthService {
         else 
             return ['success' => false, 'message' => 'Failed to register user.'];
     }
+
+    public function login(
+        LoginDtoRequest $request
+    ): array {
+        $err = $request->validate();
+
+        if ($err) 
+            return ['success' => false, 'message' => $err];
+
+        $user = $this->userRepository->findByUsername($request->username);
+
+        if (!$user || !password_verify($request->password, $user->getPassword())) {
+            return ['success' => false, 
+                    'message' => 'Invalid username or password.'];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Login successful.',
+            'role' => $user->getRole()
+        ];
+    }
 }

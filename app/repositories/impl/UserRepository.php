@@ -43,4 +43,22 @@ class UserRepository implements IUserRepository
             $statusValue
         ]);
     }
+
+    public function findByUsername(string $username): ?Users
+    {
+        $sql = "select * from users where username = ?";
+
+        $statement = $this->db->prepare($sql);
+        $statement->execute([$username]);
+        
+        $data = $statement->fetch();
+
+        if (!$data) {
+            return null;
+        }
+
+        return new Users($data['username'], $data['password'], Role::from($data['role'] ?? 'USER'));
+    }
+
+
 }

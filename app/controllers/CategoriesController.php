@@ -6,12 +6,12 @@ class CategoriesController {
     public function __construct(
         CategoriesService $categoriesService
     ) {
-        $this->CategoriesService = $categoriesService;
+        $this->categoriesService = $categoriesService;
     }
 
     public function index(): void
     {
-        $result = $this->CategoriesService->getAllCategories();
+        $result = $this->categoriesService->getAllCategories();
         
         Response::json($result);
     }
