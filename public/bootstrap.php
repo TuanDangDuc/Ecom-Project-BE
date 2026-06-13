@@ -119,12 +119,14 @@ require_once __DIR__ . '/../app/enum/Role.php';
 require_once __DIR__ . '/../app/enum/AccountStatus.php';
 require_once __DIR__ . '/../app/enum/Sex.php';
 require_once __DIR__ . '/../app/enum/ShopStatus.php';
+require_once __DIR__ . '/../app/enum/AddressType.php';
 
 /**
  * Models
  */
 require_once __DIR__ . '/../app/models/Users.php';
 require_once __DIR__ . '/../app/models/Shop.php';
+require_once __DIR__ . '/../app/models/Address.php';
 
 /**
  * DTO Requests
@@ -136,6 +138,8 @@ require_once __DIR__ . '/../app/dto/request/ResetPasswordDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/VerifyOtpDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/CreateShopDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/UpdateShopDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/CreateAddressDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/UpdateAddressDtoRequest.php';
 
 /**
  * Mappers
@@ -151,6 +155,7 @@ require_once __DIR__ . '/../app/repositories/ICartRepository.php';
 require_once __DIR__ . '/../app/repositories/IOrderRepository.php';
 require_once __DIR__ . '/../app/repositories/IReviewRepository.php';
 require_once __DIR__ . '/../app/repositories/IShopRepository.php';
+require_once __DIR__ . '/../app/repositories/IAddressRepository.php';
 /**
  * Repository Implementations
  */
@@ -160,6 +165,7 @@ require_once __DIR__ . '/../app/repositories/impl/CartRepository.php';
 require_once __DIR__ . '/../app/repositories/impl/OrderRepository.php';
 require_once __DIR__ . '/../app/repositories/impl/ReviewRepository.php';
 require_once __DIR__ . '/../app/repositories/impl/ShopRepository.php';
+require_once __DIR__ . '/../app/repositories/impl/AddressRepository.php';
 /**
  * Services
  */
@@ -171,6 +177,7 @@ require_once __DIR__ . '/../app/services/OrderService.php';
 require_once __DIR__ . '/../app/services/ReviewService.php';
 require_once __DIR__ . '/../app/services/UserService.php';
 require_once __DIR__ . '/../app/services/ShopService.php';
+require_once __DIR__ . '/../app/services/AddressService.php';
 
 /**
  * Controllers
@@ -182,6 +189,7 @@ require_once __DIR__ . '/../app/controllers/OrderController.php';
 require_once __DIR__ . '/../app/controllers/ReviewController.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
 require_once __DIR__ . '/../app/controllers/ShopController.php';
+require_once __DIR__ . '/../app/controllers/AddressController.php';
 /**
  * Database connection
  */
@@ -219,3 +227,8 @@ $reviewController = new ReviewController($reviewService);
 $shopRepository = new ShopRepository($db);
 $shopService = new ShopService($shopRepository);
 $shopController = new ShopController($shopService);
+
+//Address
+$addressRepository = new AddressRepository($db);
+$addressService = new AddressService($addressRepository);
+$addressController = new AddressController($addressService);
