@@ -193,8 +193,4 @@ $orderController = new OrderController($orderService);
 //Review
 $reviewRepository = new ReviewRepository($db);
 $reviewService = new ReviewService($reviewRepository);
-<<<<<<< HEAD
 $reviewController = new ReviewController($reviewService);
-=======
-$reviewController = new ReviewController($reviewService);
->>>>>>> caf959ecf2cc4e81ca4d5775e84dec6953ff79be
