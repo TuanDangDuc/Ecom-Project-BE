@@ -39,12 +39,14 @@ require_once __DIR__ . '/../app/repositories/impl/ProductTypesRepository.php';
 require_once __DIR__ . '/../app/enum/Role.php';
 require_once __DIR__ . '/../app/enum/AccountStatus.php';
 require_once __DIR__ . '/../app/enum/Sex.php';
+require_once __DIR__ . '/../app/enum/ShopStatus.php';
 
 // mapper
 /**
  * Models
  */
 require_once __DIR__ . '/../app/models/Users.php';
+require_once __DIR__ . '/../app/models/Shop.php';
 require_once __DIR__ . '/../app/models/Carts.php';
 require_once __DIR__ . '/../app/models/CartItem.php';
 require_once __DIR__ . '/../app/models/Orders.php';
@@ -67,6 +69,8 @@ require_once __DIR__ . '/../app/dto/request/UpdateOrderStatusDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/CreateReviewDtoRequest.php';
 require_once __DIR__ . '/../app/dto/response/UserDtoResponse.php';
 require_once __DIR__ . '/../app/dto/request/ModifyUserDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/CreateShopDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/UpdateShopDtoRequest.php';
 /**
  * Mappers
  */
@@ -114,11 +118,13 @@ $productTypesController = new ProductTypesController($productTypesService);
 require_once __DIR__ . '/../app/enum/Role.php';
 require_once __DIR__ . '/../app/enum/AccountStatus.php';
 require_once __DIR__ . '/../app/enum/Sex.php';
+require_once __DIR__ . '/../app/enum/ShopStatus.php';
 
 /**
  * Models
  */
 require_once __DIR__ . '/../app/models/Users.php';
+require_once __DIR__ . '/../app/models/Shop.php';
 
 /**
  * DTO Requests
@@ -128,6 +134,8 @@ require_once __DIR__ . '/../app/dto/request/LoginDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/ForgotPasswordDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/ResetPasswordDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/VerifyOtpDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/CreateShopDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/UpdateShopDtoRequest.php';
 
 /**
  * Mappers
@@ -142,7 +150,7 @@ require_once __DIR__ . '/../app/repositories/ICategoriesRepository.php';
 require_once __DIR__ . '/../app/repositories/ICartRepository.php';
 require_once __DIR__ . '/../app/repositories/IOrderRepository.php';
 require_once __DIR__ . '/../app/repositories/IReviewRepository.php';
-
+require_once __DIR__ . '/../app/repositories/IShopRepository.php';
 /**
  * Repository Implementations
  */
@@ -151,7 +159,7 @@ require_once __DIR__ . '/../app/repositories/impl/CategoriesRepository.php';
 require_once __DIR__ . '/../app/repositories/impl/CartRepository.php';
 require_once __DIR__ . '/../app/repositories/impl/OrderRepository.php';
 require_once __DIR__ . '/../app/repositories/impl/ReviewRepository.php';
-
+require_once __DIR__ . '/../app/repositories/impl/ShopRepository.php';
 /**
  * Services
  */
@@ -162,6 +170,7 @@ require_once __DIR__ . '/../app/services/CartService.php';
 require_once __DIR__ . '/../app/services/OrderService.php';
 require_once __DIR__ . '/../app/services/ReviewService.php';
 require_once __DIR__ . '/../app/services/UserService.php';
+require_once __DIR__ . '/../app/services/ShopService.php';
 
 /**
  * Controllers
@@ -172,6 +181,7 @@ require_once __DIR__ . '/../app/controllers/CartController.php';
 require_once __DIR__ . '/../app/controllers/OrderController.php';
 require_once __DIR__ . '/../app/controllers/ReviewController.php';
 require_once __DIR__ . '/../app/controllers/UserController.php';
+require_once __DIR__ . '/../app/controllers/ShopController.php';
 /**
  * Database connection
  */
@@ -204,3 +214,8 @@ $orderController = new OrderController($orderService);
 $reviewRepository = new ReviewRepository($db);
 $reviewService = new ReviewService($reviewRepository);
 $reviewController = new ReviewController($reviewService);
+
+//Shop
+$shopRepository = new ShopRepository($db);
+$shopService = new ShopService($shopRepository);
+$shopController = new ShopController($shopService);

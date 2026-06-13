@@ -11,5 +11,6 @@ require_once __DIR__ . '/../app/routes/Users.php';
 require_once __DIR__ . '/../app/routes/Cart.php';
 require_once __DIR__ . '/../app/routes/Order.php';
 require_once __DIR__ . '/../app/routes/Review.php';
+require_once __DIR__ . '/../app/routes/Shop.php';
 
 $router->dispatch();
