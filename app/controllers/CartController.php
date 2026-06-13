@@ -29,16 +29,10 @@ class CartController
             return;
         }
 
-        $data = json_decode(file_get_contents('php://input'), true);
-        $productVariantId = isset($data['productVariantId']) ? (int)$data['productVariantId'] : null;
-        $quantity = isset($data['quantity']) ? (int)$data['quantity'] : 1;
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        $request = new AddToCartDtoRequest($data);
 
-        if ($productVariantId === null) {
-            Response::json(['success' => false, 'message' => 'productVariantId is required.'], 400);
-            return;
-        }
-
-        $result = $this->cartService->addToCart($userId, $productVariantId, $quantity);
+        $result = $this->cartService->addToCart($userId, $request);
         $status = $result['success'] ? 200 : 400;
         Response::json($result, $status);
     }
@@ -51,15 +45,10 @@ class CartController
             return;
         }
 
-        $data = json_decode(file_get_contents('php://input'), true);
-        $quantity = isset($data['quantity']) ? (int)$data['quantity'] : null;
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        $request = new UpdateCartItemDtoRequest($data);
 
-        if ($quantity === null) {
-            Response::json(['success' => false, 'message' => 'quantity is required.'], 400);
-            return;
-        }
-
-        $result = $this->cartService->updateCartItem($userId, (int)$id, $quantity);
+        $result = $this->cartService->updateCartItem($userId, (int)$id, $request);
         $status = $result['success'] ? 200 : 400;
         Response::json($result, $status);
     }

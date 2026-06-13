@@ -2,18 +2,14 @@
 
 class AuthHelper
 {
-    /**
-     * Get the currently logged in User ID.
-     * Checks HTTP headers (X-User-Id) first, then falls back to session.
-     */
     public static function getCurrentUserId(): ?int
     {
         $headers = self::getAllHeaders();
         if (isset($headers['X-User-Id'])) {
-            return (int)$headers['X-User-Id'];
+            return (int) $headers['X-User-Id'];
         }
         if (isset($headers['x-user-id'])) {
-            return (int)$headers['x-user-id'];
+            return (int) $headers['x-user-id'];
         }
 
         // Fallback to PHP Session
@@ -21,12 +17,9 @@ class AuthHelper
             session_start();
         }
 
-        return isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+        return isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
     }
 
-    /**
-     * Get the currently logged in User's Role.
-     */
     public static function getCurrentUserRole(PDO $db): string
     {
         $headers = self::getAllHeaders();
@@ -50,9 +43,6 @@ class AuthHelper
         return 'BUYER';
     }
 
-    /**
-     * Get all HTTP headers (compatibility fallback).
-     */
     private static function getAllHeaders(): array
     {
         if (function_exists('getallheaders')) {

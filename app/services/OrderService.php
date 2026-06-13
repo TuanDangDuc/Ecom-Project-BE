@@ -11,16 +11,11 @@ class OrderService
         $this->cartRepository = $cartRepository;
     }
 
-    public function checkout(int $userId, array $checkoutData): array
+    public function checkout(int $userId, CheckoutDtoRequest $request): array
     {
-        $recipientName = trim($checkoutData['recipientName'] ?? '');
-        $recipientPhone = trim($checkoutData['recipientPhone'] ?? '');
-        $note = trim($checkoutData['note'] ?? '');
-        $shippingAddressId = isset($checkoutData['shippingAddressId']) ? (int)$checkoutData['shippingAddressId'] : null;
-        $cartItemIds = $checkoutData['cartItemIds'] ?? [];
-
-        if (empty($recipientName) || empty($recipientPhone)) {
-            return ['success' => false, 'message' => 'Recipient name and phone are required.'];
+        $err = $request->validate();
+        if ($err) {
+            return ['success' => false, 'message' => $err];
         }
 
         $cart = $this->cartRepository->findCartByUserId($userId);
@@ -28,16 +23,16 @@ class OrderService
             return ['success' => false, 'message' => 'Cart not found.'];
         }
 
-        $cartItems = $this->cartRepository->getCartItems((int)$cart['id']);
+        $cartItems = $this->cartRepository->getCartItems($cart->getId());
         if (empty($cartItems)) {
             return ['success' => false, 'message' => 'Cart is empty.'];
         }
 
         $checkoutItems = [];
-        if (!empty($cartItemIds)) {
-            $ids = array_map('intval', $cartItemIds);
+        if (!empty($request->cartItemIds)) {
+            $ids = array_map('intval', $request->cartItemIds);
             foreach ($cartItems as $item) {
-                if (in_array((int)$item['id'], $ids)) {
+                if (in_array($item->getId(), $ids)) {
                     $checkoutItems[] = $item;
                 }
             }
@@ -53,11 +48,11 @@ class OrderService
 
             $subtotal = 0.00;
             foreach ($checkoutItems as $item) {
-                $stock = $this->orderRepository->getVariantStock((int)$item['productVariantId']);
-                if ($stock < (int)$item['quantity']) {
-                    throw new Exception("Product variant {$item['productName']} is out of stock (Available: $stock, Requested: {$item['quantity']}).");
+                $stock = $this->orderRepository->getVariantStock($item->getProductVariantId());
+                if ($stock < $item->getQuantity()) {
+                    throw new Exception("Product variant {$item->getProductName()} is out of stock (Available: $stock, Requested: {$item->getQuantity()}).");
                 }
-                $subtotal += (float)$item['currentPrice'] * (int)$item['quantity'];
+                $subtotal += (float)$item->getCurrentPrice() * $item->getQuantity();
             }
 
             $shippingFee = $subtotal > 500000 ? 0.00 : 30000.00;
@@ -65,39 +60,42 @@ class OrderService
 
             $orderCode = 'ORD-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
 
-            $orderId = $this->orderRepository->createOrder([
+            $order = new Orders([
                 'orderCode' => $orderCode,
                 'userId' => $userId,
-                'recipientName' => $recipientName,
-                'recipientPhone' => $recipientPhone,
-                'note' => $note,
+                'recipientName' => $request->recipientName,
+                'recipientPhone' => $request->recipientPhone,
+                'note' => $request->note,
                 'subtotal' => $subtotal,
                 'shippingFee' => $shippingFee,
                 'totalAmount' => $totalAmount,
-                'shippingAddressId' => $shippingAddressId
+                'shippingAddressId' => $request->shippingAddressId
             ]);
 
-            foreach ($checkoutItems as $item) {
-                $currentStock = $this->orderRepository->getVariantStock((int)$item['productVariantId']);
-                $this->orderRepository->updateVariantStock((int)$item['productVariantId'], $currentStock - (int)$item['quantity']);
+            $orderId = $this->orderRepository->createOrder($order);
 
-                $this->orderRepository->createOrderItem([
+            foreach ($checkoutItems as $item) {
+                $currentStock = $this->orderRepository->getVariantStock($item->getProductVariantId());
+                $this->orderRepository->updateVariantStock($item->getProductVariantId(), $currentStock - $item->getQuantity());
+
+                $orderItem = new OrderItem([
                     'orderId' => $orderId,
-                    'quantity' => (int)$item['quantity'],
-                    'priceAtPurchase' => (float)$item['currentPrice'],
+                    'quantity' => $item->getQuantity(),
+                    'priceAtPurchase' => (float)$item->getCurrentPrice(),
                     'orderStatus' => 'PENDING',
-                    'productVariantId' => (int)$item['productVariantId']
+                    'productVariantId' => $item->getProductVariantId()
                 ]);
 
-                $this->cartRepository->deleteCartItem((int)$item['id']);
+                $this->orderRepository->createOrderItem($orderItem);
+                $this->cartRepository->deleteCartItem($item->getId());
             }
 
-            $remainingItems = $this->cartRepository->getCartItems((int)$cart['id']);
+            $remainingItems = $this->cartRepository->getCartItems($cart->getId());
             $remainingTotal = 0.00;
             foreach ($remainingItems as $remItem) {
-                $remainingTotal += (float)$remItem['currentPrice'] * (int)$remItem['quantity'];
+                $remainingTotal += (float)$remItem->getCurrentPrice() * $remItem->getQuantity();
             }
-            $this->cartRepository->updateCartTotalCost((int)$cart['id'], $remainingTotal);
+            $this->cartRepository->updateCartTotalCost($cart->getId(), $remainingTotal);
 
             $this->orderRepository->commitTransaction();
 
@@ -117,10 +115,22 @@ class OrderService
     public function getUserOrders(int $userId): array
     {
         $orders = $this->orderRepository->findUserOrders($userId);
-        foreach ($orders as &$order) {
-            $order['items'] = $this->orderRepository->getOrderItems((int)$order['id']);
+        
+        $ordersArray = [];
+        foreach ($orders as $order) {
+            $orderArr = $order->toArray();
+            
+            $items = $this->orderRepository->getOrderItems($order->getId());
+            $itemsArray = [];
+            foreach ($items as $item) {
+                $itemsArray[] = $item->toArray();
+            }
+            
+            $orderArr['items'] = $itemsArray;
+            $ordersArray[] = $orderArr;
         }
-        return ['success' => true, 'orders' => $orders];
+
+        return ['success' => true, 'orders' => $ordersArray];
     }
 
     public function getOrderDetail(int $userId, int $orderId): array
@@ -130,28 +140,36 @@ class OrderService
             return ['success' => false, 'message' => 'Order not found.'];
         }
 
-        if ((int)$order['userId'] !== $userId) {
+        if ($order->getUserId() !== $userId) {
             return ['success' => false, 'message' => 'Unauthorized view.'];
         }
 
-        $order['items'] = $this->orderRepository->getOrderItems($orderId);
-        return ['success' => true, 'order' => $order];
+        $orderArr = $order->toArray();
+        $items = $this->orderRepository->getOrderItems($orderId);
+        $itemsArray = [];
+        foreach ($items as $item) {
+            $itemsArray[] = $item->toArray();
+        }
+        $orderArr['items'] = $itemsArray;
+
+        return ['success' => true, 'order' => $orderArr];
     }
 
-    public function updateOrderStatus(int $userId, string $role, int $orderId, string $status): array
+    public function updateOrderStatus(int $userId, string $role, int $orderId, UpdateOrderStatusDtoRequest $request): array
     {
-        $allowedStatuses = ['PENDING', 'CONFIRMED', 'SHIPPING', 'COMPLETED', 'CANCELED'];
-        $status = strtoupper($status);
-        if (!in_array($status, $allowedStatuses)) {
-            return ['success' => false, 'message' => 'Invalid status value.'];
+        $err = $request->validate();
+        if ($err) {
+            return ['success' => false, 'message' => $err];
         }
+        
+        $status = strtoupper($request->status);
 
         $order = $this->orderRepository->findOrderById($orderId);
         if (!$order) {
             return ['success' => false, 'message' => 'Order not found.'];
         }
 
-        $isOwner = ((int)$order['userId'] === $userId);
+        $isOwner = ($order->getUserId() === $userId);
         $isAdminOrSeller = ($role === 'ADMIN' || $role === 'SELLER');
 
         if (!$isOwner && !$isAdminOrSeller) {
@@ -163,7 +181,7 @@ class OrderService
             return ['success' => false, 'message' => 'No items in this order.'];
         }
 
-        $currentStatus = $items[0]['orderStatus'];
+        $currentStatus = $items[0]->getOrderStatus();
 
         if ($isOwner && !$isAdminOrSeller) {
             if ($status !== 'CANCELED') {
@@ -182,8 +200,8 @@ class OrderService
             if ($status === 'CANCELED' && $currentStatus !== 'CANCELED') {
                 $this->orderRepository->setOrderCanceledTime($orderId);
                 foreach ($items as $item) {
-                    $currentStock = $this->orderRepository->getVariantStock((int)$item['productVariantId']);
-                    $this->orderRepository->updateVariantStock((int)$item['productVariantId'], $currentStock + (int)$item['quantity']);
+                    $currentStock = $this->orderRepository->getVariantStock($item->getProductVariantId());
+                    $this->orderRepository->updateVariantStock($item->getProductVariantId(), $currentStock + $item->getQuantity());
                 }
             }
 

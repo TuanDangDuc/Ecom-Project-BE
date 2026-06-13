@@ -13,60 +13,59 @@ class CartService
     {
         $cart = $this->cartRepository->findCartByUserId($userId);
         if (!$cart) {
-            $cartId = $this->cartRepository->createCart($userId);
-            $cart = [
-                'id' => $cartId,
-                'userId' => $userId,
-                'totalCost' => 0.00
-            ];
+            $newCart = new Carts(['userId' => $userId, 'totalCost' => 0.00]);
+            $cartId = $this->cartRepository->createCart($newCart);
+            $cart = new Carts(['id' => $cartId, 'userId' => $userId, 'totalCost' => 0.00]);
         }
 
-        $items = $this->cartRepository->getCartItems((int)$cart['id']);
+        $items = $this->cartRepository->getCartItems($cart->getId());
 
         $totalCost = 0.00;
+        $itemsArray = [];
         foreach ($items as $item) {
-            $totalCost += (float)$item['currentPrice'] * (int)$item['quantity'];
+            $totalCost += (float)$item->getCurrentPrice() * (int)$item->getQuantity();
+            $itemsArray[] = $item->toArray();
         }
 
-        if (abs((float)$cart['totalCost'] - $totalCost) > 0.001) {
-            $this->cartRepository->updateCartTotalCost((int)$cart['id'], $totalCost);
-            $cart['totalCost'] = $totalCost;
+        if (abs((float)$cart->getTotalCost() - $totalCost) > 0.001) {
+            $this->cartRepository->updateCartTotalCost($cart->getId(), $totalCost);
+            $cart->setTotalCost($totalCost);
         }
+
+        $cartArray = $cart->toArray();
+        $cartArray['items'] = $itemsArray;
 
         return [
             'success' => true,
-            'cart' => [
-                'id' => (int)$cart['id'],
-                'userId' => (int)$cart['userId'],
-                'totalCost' => (float)$cart['totalCost'],
-                'items' => $items
-            ]
+            'cart' => $cartArray
         ];
     }
 
-    public function addToCart(int $userId, int $productVariantId, int $quantity): array
+    public function addToCart(int $userId, AddToCartDtoRequest $request): array
     {
-        if ($quantity <= 0) {
-            return ['success' => false, 'message' => 'Quantity must be greater than zero.'];
+        $err = $request->validate();
+        if ($err) {
+            return ['success' => false, 'message' => $err];
         }
 
-        $variant = $this->cartRepository->getVariantStockAndPrice($productVariantId);
+        $variant = $this->cartRepository->getVariantStockAndPrice($request->productVariantId);
         if (!$variant) {
             return ['success' => false, 'message' => 'Product variant not found.'];
         }
 
         $cart = $this->cartRepository->findCartByUserId($userId);
         if (!$cart) {
-            $cartId = $this->cartRepository->createCart($userId);
-            $cart = ['id' => $cartId];
+            $newCart = new Carts(['userId' => $userId, 'totalCost' => 0.00]);
+            $cartId = $this->cartRepository->createCart($newCart);
+            $cart = new Carts(['id' => $cartId]);
         }
 
-        $cartId = (int)$cart['id'];
+        $cartId = $cart->getId();
 
-        $existingItem = $this->cartRepository->findCartItem($cartId, $productVariantId);
-        $newQuantity = $quantity;
+        $existingItem = $this->cartRepository->findCartItem($cartId, $request->productVariantId);
+        $newQuantity = $request->quantity;
         if ($existingItem) {
-            $newQuantity += (int)$existingItem['quantity'];
+            $newQuantity += $existingItem->getQuantity();
         }
 
         if ($newQuantity > (int)$variant['stock']) {
@@ -77,9 +76,15 @@ class CartService
         }
 
         if ($existingItem) {
-            $success = $this->cartRepository->updateCartItemQuantity((int)$existingItem['id'], $newQuantity);
+            $success = $this->cartRepository->updateCartItemQuantity($existingItem->getId(), $newQuantity);
         } else {
-            $success = $this->cartRepository->addCartItem($cartId, $productVariantId, $quantity, (float)$variant['price']);
+            $newItem = new CartItem([
+                'cartId' => $cartId,
+                'productVariantId' => $request->productVariantId,
+                'quantity' => $request->quantity,
+                'priceAtAdded' => (float)$variant['price']
+            ]);
+            $success = $this->cartRepository->addCartItem($newItem);
         }
 
         if ($success) {
@@ -90,10 +95,11 @@ class CartService
         return ['success' => false, 'message' => 'Failed to add item to cart.'];
     }
 
-    public function updateCartItem(int $userId, int $cartItemId, int $quantity): array
+    public function updateCartItem(int $userId, int $cartItemId, UpdateCartItemDtoRequest $request): array
     {
-        if ($quantity <= 0) {
-            return ['success' => false, 'message' => 'Quantity must be greater than zero.'];
+        $err = $request->validate();
+        if ($err) {
+            return ['success' => false, 'message' => $err];
         }
 
         $cartItem = $this->cartRepository->findCartItemById($cartItemId);
@@ -102,25 +108,25 @@ class CartService
         }
 
         $cart = $this->cartRepository->findCartByUserId($userId);
-        if (!$cart || (int)$cartItem['cartId'] !== (int)$cart['id']) {
+        if (!$cart || $cartItem->getCartId() !== $cart->getId()) {
             return ['success' => false, 'message' => 'Unauthorized or cart mismatch.'];
         }
 
-        $variant = $this->cartRepository->getVariantStockAndPrice((int)$cartItem['productVariantId']);
+        $variant = $this->cartRepository->getVariantStockAndPrice($cartItem->getProductVariantId());
         if (!$variant) {
             return ['success' => false, 'message' => 'Product variant not found.'];
         }
 
-        if ($quantity > (int)$variant['stock']) {
+        if ($request->quantity > (int)$variant['stock']) {
             return [
                 'success' => false,
-                'message' => "Cannot update quantity. Requested quantity ($quantity) exceeds available stock ({$variant['stock']})."
+                'message' => "Cannot update quantity. Requested quantity ({$request->quantity}) exceeds available stock ({$variant['stock']})."
             ];
         }
 
-        $success = $this->cartRepository->updateCartItemQuantity($cartItemId, $quantity);
+        $success = $this->cartRepository->updateCartItemQuantity($cartItemId, $request->quantity);
         if ($success) {
-            $this->recalculateCartTotal((int)$cart['id']);
+            $this->recalculateCartTotal($cart->getId());
             return ['success' => true, 'message' => 'Cart updated successfully.'];
         }
 
@@ -135,13 +141,13 @@ class CartService
         }
 
         $cart = $this->cartRepository->findCartByUserId($userId);
-        if (!$cart || (int)$cartItem['cartId'] !== (int)$cart['id']) {
+        if (!$cart || $cartItem->getCartId() !== $cart->getId()) {
             return ['success' => false, 'message' => 'Unauthorized or cart mismatch.'];
         }
 
         $success = $this->cartRepository->deleteCartItem($cartItemId);
         if ($success) {
-            $this->recalculateCartTotal((int)$cart['id']);
+            $this->recalculateCartTotal($cart->getId());
             return ['success' => true, 'message' => 'Item removed from cart.'];
         }
 
@@ -153,7 +159,7 @@ class CartService
         $items = $this->cartRepository->getCartItems($cartId);
         $totalCost = 0.00;
         foreach ($items as $item) {
-            $totalCost += (float)$item['currentPrice'] * (int)$item['quantity'];
+            $totalCost += (float)$item->getCurrentPrice() * (int)$item->getQuantity();
         }
         $this->cartRepository->updateCartTotalCost($cartId, $totalCost);
     }

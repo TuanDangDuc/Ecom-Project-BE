@@ -19,10 +19,13 @@ class CategoriesController {
     public function store(): void
     {
         $data = json_decode(file_get_contents('php://input'), true);
-        $name = $data['name'] ?? null;
+        $name = trim($data['name'] ?? '');
 
-        if (!$name) {
-            Response::json(['error' => 'Name is required'], 400);
+        // validate
+        if ($name === '') {
+            Response::json([
+                'message' => 'Name is required'
+            ], 400);
             return;
         }
 

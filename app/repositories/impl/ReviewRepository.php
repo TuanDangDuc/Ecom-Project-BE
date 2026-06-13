@@ -6,38 +6,38 @@ class ReviewRepository implements IReviewRepository
         private PDO $db
     ){}
 
-    public function createReview(array $reviewData): int
+    public function createReview(Reviews $review): int
     {
         $sql = "INSERT INTO reviews (orderItemId, productVariantId, userId, rating, comment, shopReply)
                 VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            $reviewData['orderItemId'],
-            $reviewData['productVariantId'],
-            $reviewData['userId'],
-            $reviewData['rating'],
-            $reviewData['comment'] ?? null,
-            $reviewData['shopReply'] ?? null
+            $review->getOrderItemId(),
+            $review->getProductVariantId(),
+            $review->getUserId(),
+            $review->getRating(),
+            $review->getComment(),
+            $review->getShopReply()
         ]);
         return (int)$this->db->lastInsertId();
     }
 
-    public function findReviewById(int $reviewId): ?array
+    public function findReviewById(int $reviewId): ?Reviews
     {
         $sql = "SELECT * FROM reviews WHERE id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$reviewId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
+        return $result ? new Reviews($result) : null;
     }
 
-    public function findReviewByOrderItemId(int $orderItemId): ?array
+    public function findReviewByOrderItemId(int $orderItemId): ?Reviews
     {
         $sql = "SELECT * FROM reviews WHERE orderItemId = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$orderItemId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
+        return $result ? new Reviews($result) : null;
     }
 
     public function findProductReviews(int $productId): array
@@ -60,14 +60,24 @@ class ReviewRepository implements IReviewRepository
                 ORDER BY r.createAt DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$productId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $reviews = [];
+        foreach ($results as $row) {
+            $reviews[] = new Reviews($row);
+        }
+        return $reviews;
     }
 
-    public function addReviewImage(int $reviewId, string $url, int $imageOrder): bool
+    public function addReviewImage(ReviewImage $image): bool
     {
         $sql = "INSERT INTO reviewImages (reviewId, url, imageOrder) VALUES (?, ?, ?)";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$reviewId, $url, $imageOrder]);
+        return $stmt->execute([
+            $image->getReviewId(),
+            $image->getImageUrl(),
+            $image->getImageOrder()
+        ]);
     }
 
     public function deleteReviewImage(int $reviewImageId): bool
@@ -77,13 +87,13 @@ class ReviewRepository implements IReviewRepository
         return $stmt->execute([$reviewImageId]);
     }
 
-    public function findReviewImageById(int $reviewImageId): ?array
+    public function findReviewImageById(int $reviewImageId): ?ReviewImage
     {
         $sql = "SELECT * FROM reviewImages WHERE id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$reviewImageId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
+        return $result ? new ReviewImage($result) : null;
     }
 
     public function getReviewImages(int $reviewId): array
@@ -91,12 +101,17 @@ class ReviewRepository implements IReviewRepository
         $sql = "SELECT id, url, imageOrder FROM reviewImages WHERE reviewId = ? ORDER BY imageOrder ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$reviewId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $images = [];
+        foreach ($results as $row) {
+            $images[] = new ReviewImage($row);
+        }
+        return $images;
     }
 
     public function getOrderItemDetails(int $orderItemId): ?array
     {
-        // Join with orders to get userId and check status
         $sql = "SELECT oi.id, oi.orderId, oi.orderStatus, oi.productVariantId, o.userId, pv.productId
                 FROM orderItem oi
                 JOIN orders o ON oi.orderId = o.id
@@ -110,7 +125,6 @@ class ReviewRepository implements IReviewRepository
 
     public function updateProductRatingAverage(int $productId): bool
     {
-        // Calculate average
         $sql = "SELECT AVG(r.rating) AS avgRating 
                 FROM reviews r
                 JOIN productVariants pv ON r.productVariantId = pv.id
@@ -121,7 +135,6 @@ class ReviewRepository implements IReviewRepository
         
         $avg = $res && $res['avgRating'] !== null ? (float)$res['avgRating'] : 0.00;
 
-        // Update product
         $updateSql = "UPDATE product SET ratingAverage = ? WHERE id = ?";
         $updateStmt = $this->db->prepare($updateSql);
         return $updateStmt->execute([$avg, $productId]);
