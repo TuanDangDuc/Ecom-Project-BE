@@ -6,8 +6,8 @@ class Database
 
     public static function connection()
     {
-       if (self::$connection === null) {
-            $config = require __DIR__ . '/../../config/dbConf.php';
+        if (self::$connection === null) {
+            $config = require __DIR__ . './../../config/dbConf.php';
             $dsn = "mysql:host={$config['host']};port={$config['port']};dbname={$config['dbname']};charset=utf8mb4";
             try {
                 self::$connection = new PDO($dsn, $config['user'], $config['pass']);
