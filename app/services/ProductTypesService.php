@@ -6,12 +6,12 @@ class ProductTypesService {
     public function __construct(
         IProductTypesRepository $productTypesRepository
     ) {
-        $this->ProductTypesRepository = $productTypesRepository;
+        $this->productTypesRepository = $productTypesRepository;
     }
 
     public function getAllProductTypes(): array
     {
-        return $this->ProductTypesRepository->getAll();
+        return $this->productTypesRepository->getAll();
     }
 
     public function createProductType(CreateProductTypeDtoRequest $request): array
@@ -21,11 +21,11 @@ class ProductTypesService {
         if ($err) 
             return ['success' => false, 'message' => $err];
 
-        if ($this->ProductTypesRepository->checkExistsByName($request->name))
+        if ($this->productTypesRepository->checkExistsByName($request->name))
             return ['success' => false, 'message' => 'Product type name already exists.'];
         
         $productType = ProductTypeMapper::CreateProductTypeDtoRequestToProductType($request);
-        $saveResult = $this->ProductTypesRepository->create($productType);
+        $saveResult = $this->productTypesRepository->create($productType);
         
         if ($saveResult) 
             return ['success' => true, 'message' => 'Product type created successfully.'];

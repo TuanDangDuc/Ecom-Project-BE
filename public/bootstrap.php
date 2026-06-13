@@ -21,6 +21,7 @@ require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/CategoriesController.php';
 require_once __DIR__ . '/../app/controllers/ProductTypesController.php';
 // service
+require_once __DIR__ . '/../app/services/MailService.php';
 require_once __DIR__ . '/../app/services/AuthService.php';
 require_once __DIR__ . '/../app/services/CategoriesService.php';
 require_once __DIR__ . '/../app/services/ProductTypesService.php';
@@ -193,8 +194,4 @@ $orderController = new OrderController($orderService);
 //Review
 $reviewRepository = new ReviewRepository($db);
 $reviewService = new ReviewService($reviewRepository);
-<<<<<<< HEAD
 $reviewController = new ReviewController($reviewService);
-=======
-$reviewController = new ReviewController($reviewService);
->>>>>>> caf959ecf2cc4e81ca4d5775e84dec6953ff79be
