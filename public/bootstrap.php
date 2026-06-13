@@ -20,11 +20,13 @@ require_once __DIR__ . '/../app/core/AuthHelper.php';
 require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/controllers/CategoriesController.php';
 require_once __DIR__ . '/../app/controllers/ProductTypesController.php';
+require_once __DIR__ . '/../app/controllers/UserController.php';
 // service
 require_once __DIR__ . '/../app/services/MailService.php';
 require_once __DIR__ . '/../app/services/AuthService.php';
 require_once __DIR__ . '/../app/services/CategoriesService.php';
 require_once __DIR__ . '/../app/services/ProductTypesService.php';
+require_once __DIR__ . '/../app/services/UserService.php';
 // repo
 require_once __DIR__ . '/../app/repositories/IUserRepository.php';
 require_once __DIR__ . '/../app/repositories/ICategoriesRepository.php';
@@ -36,6 +38,7 @@ require_once __DIR__ . '/../app/repositories/impl/ProductTypesRepository.php';
 // enums
 require_once __DIR__ . '/../app/enum/Role.php';
 require_once __DIR__ . '/../app/enum/AccountStatus.php';
+require_once __DIR__ . '/../app/enum/Sex.php';
 
 // mapper
 /**
@@ -62,7 +65,8 @@ require_once __DIR__ . '/../app/dto/request/UpdateCartItemDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/CheckoutDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/UpdateOrderStatusDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/CreateReviewDtoRequest.php';
-
+require_once __DIR__ . '/../app/dto/response/UserDtoResponse.php';
+require_once __DIR__ . '/../app/dto/request/ModifyUserDtoRequest.php';
 /**
  * Mappers
  */
@@ -86,6 +90,9 @@ $db = Database::connection();
 $userRepository = new UserRepository($db);
 $authService = new AuthService($userRepository);
 $authController = new AuthController($authService);
+// user service and controller
+$userService = new UserService($userRepository);
+$userController = new UserController($userService);
 
 // regis route cho categories
 $categoriesRepository = new CategoriesRepository($db);
@@ -106,6 +113,7 @@ $productTypesController = new ProductTypesController($productTypesService);
  */
 require_once __DIR__ . '/../app/enum/Role.php';
 require_once __DIR__ . '/../app/enum/AccountStatus.php';
+require_once __DIR__ . '/../app/enum/Sex.php';
 
 /**
  * Models
@@ -153,6 +161,7 @@ require_once __DIR__ . '/../app/services/CategoriesService.php';
 require_once __DIR__ . '/../app/services/CartService.php';
 require_once __DIR__ . '/../app/services/OrderService.php';
 require_once __DIR__ . '/../app/services/ReviewService.php';
+require_once __DIR__ . '/../app/services/UserService.php';
 
 /**
  * Controllers
@@ -162,7 +171,7 @@ require_once __DIR__ . '/../app/controllers/CategoriesController.php';
 require_once __DIR__ . '/../app/controllers/CartController.php';
 require_once __DIR__ . '/../app/controllers/OrderController.php';
 require_once __DIR__ . '/../app/controllers/ReviewController.php';
-
+require_once __DIR__ . '/../app/controllers/UserController.php';
 /**
  * Database connection
  */

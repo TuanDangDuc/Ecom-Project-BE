@@ -84,5 +84,65 @@ class UserRepository implements IUserRepository
         return $statement->execute([$hashedPassword, $email]);
     }
 
+    public function getAllUserByPage(
+        int $page,
+        int $limit
+    ): array {
+        $offset = ($page - 1) * $limit;
 
+        $limit = (int)$limit;
+        $offset = (int)$offset;
+
+        $sql = "select * from users order by id limit $limit offset $offset";
+
+        $statement = $this->db->prepare($sql);
+        $statement->execute();
+
+        return $statement->fetchAll();
+    } 
+
+    public function getUserByUsername(string $username): mixed
+    {
+        $sql = "select * from users where username = ?";
+
+        $statement = $this->db->prepare($sql);
+        $statement->execute([$username]);
+
+        return $statement->fetch();
+    }
+
+    public function deleteUserByUsername(string $username): bool {
+        $sql = "delete from users where username = ?";
+        $statement = $this->db->prepare($sql);
+        return $statement->execute([$username]);
+    }
+
+    public function updateUser(Users $user): bool  {
+        $sql = "update users set email = ?, fullName = ?, sex = ?, dateOfBirth = ?, avatarUrl = ? where username = ?";
+        $statement = $this->db->prepare($sql);
+        
+        $sexValue = $user->getSex() !== null ? $user->getSex()->value : null;
+        $dobValue = $user->getDateOfBirth() !== null ? $user->getDateOfBirth()->format('Y-m-d') : null;
+        
+        return $statement->execute([
+            $user->getEmail(),
+            $user->getFullName(),
+            $sexValue,
+            $dobValue,
+            $user->getAvatarUrl(),
+            $user->getUsername()
+        ]);
+    }
+
+    public function updateAccountStatus(string $username, string $status): bool {
+        $sql = "update users set accountStatus = ? where username = ?";
+        $statement = $this->db->prepare($sql);
+        return $statement->execute([$status, $username]);
+    }
+
+    public function updateRole(string $username, string $role): bool {
+        $sql = "update users set role = ? where username = ?";
+        $statement = $this->db->prepare($sql);
+        return $statement->execute([$role, $username]);
+    }
 }

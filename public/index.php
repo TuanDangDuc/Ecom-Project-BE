@@ -7,8 +7,7 @@ $router = new Router();
 require_once __DIR__ . '/../app/routes/auth.php';
 require_once __DIR__ . '/../app/routes/categories.php';
 require_once __DIR__ . '/../app/routes/productTypes.php';
-
-// New routes
+require_once __DIR__ . '/../app/routes/Users.php';
 require_once __DIR__ . '/../app/routes/Cart.php';
 require_once __DIR__ . '/../app/routes/Order.php';
 require_once __DIR__ . '/../app/routes/Review.php';
