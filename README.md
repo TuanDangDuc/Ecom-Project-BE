@@ -93,5 +93,7 @@ ECOM-LTW/
 └── .gitignore
 ```
 ## Run source code
+```
 composer install
 php -S localhost:8000 public/index.php
+```
