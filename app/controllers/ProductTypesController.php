@@ -6,12 +6,12 @@ class ProductTypesController {
     public function __construct(
         ProductTypesService $productTypesService
     ) {
-        $this->ProductTypesService = $productTypesService;
+        $this->productTypesService = $productTypesService;
     }
 
     public function index(): void
     {
-        $result = $this->ProductTypesService->getAllProductTypes();
+        $result = $this->productTypesService->getAllProductTypes();
         
         Response::json($result);
     }
@@ -30,7 +30,7 @@ class ProductTypesController {
         }
 
         $request = new CreateProductTypeDtoRequest($data);
-        $result = $this->ProductTypesService->createProductType($request);
+        $result = $this->productTypesService->createProductType($request);
 
         $status = $result['status'] ?? ($result['success'] ? 200 : 400);
         Response::json($result, $status);

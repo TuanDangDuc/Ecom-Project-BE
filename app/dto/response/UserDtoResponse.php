@@ -1,24 +1,22 @@
 <?php
-
-class Users
+class UserDtoResponse implements JsonSerializable
 {
+    public function jsonSerialize(): array
+    {
+        return get_object_vars($this);
+    }
     private int $id;
     private string $username;
-    private string $password;
     private string $email;
     private string $fullName;
-    private ?Sex $sex = null;
-    private ?Role $role = null;
-    private ?DateTime $dateOfBirth = null;
+    private string $sex;
+    private string $role;
+    private ?string $dateOfBirth = null;
     private string $avatarUrl;
-    private ?AccountStatus $accountStatus = null;
-    private ?DateTime $createdAt = null;
-    private ?DateTime $updatedAt = null;
+    private string $accountStatus;
+    private ?string $createdAt = null;
+    private ?string $updatedAt = null;
 
-    public function __construct() {
-
-    }
-    
     public function getId(): int
     {
         return $this->id;
@@ -37,16 +35,6 @@ class Users
     public function setUsername(string $username): void
     {
         $this->username = $username;
-    }
-
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): void
-    {
-        $this->password = $password;
     }
 
     public function getEmail(): string
@@ -69,34 +57,34 @@ class Users
         $this->fullName = $fullName;
     }
 
-    public function getSex(): ?Sex
+    public function getSex(): string
     {
         return $this->sex;
     }
 
-    public function setSex(Sex $sex): void
+    public function setSex(string $sex): void
     {
         $this->sex = $sex;
     }
 
-    public function getRole(): ?Role
+    public function getRole(): string
     {
         return $this->role;
     }
 
-    public function setRole(Role $role): void
+    public function setRole(string $role): void
     {
         $this->role = $role;
     }
 
-    public function getDateOfBirth(): ?DateTime
+    public function getDateOfBirth(): ?string
     {
         return $this->dateOfBirth;
     }
 
-    public function setDateOfBirth(DateTime $dob): void
+    public function setDateOfBirth(?string $dateOfBirth): void
     {
-        $this->dateOfBirth = $dob;
+        $this->dateOfBirth = $dateOfBirth;
     }
 
     public function getAvatarUrl(): string
@@ -104,38 +92,38 @@ class Users
         return $this->avatarUrl;
     }
 
-    public function setAvatarUrl(string $url): void
+    public function setAvatarUrl(string $avatarUrl): void
     {
-        $this->avatarUrl = $url;
+        $this->avatarUrl = $avatarUrl;
     }
 
-    public function getAccountStatus(): ?AccountStatus
+    public function getAccountStatus(): string
     {
         return $this->accountStatus;
     }
 
-    public function setAccountStatus(AccountStatus $status): void
+    public function setAccountStatus(string $accountStatus): void
     {
-        $this->accountStatus = $status;
+        $this->accountStatus = $accountStatus;
     }
 
-    public function getCreatedAt(): ?DateTime
+    public function getCreatedAt(): ?string
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $dt): void
+    public function setCreatedAt(?string $createdAt): void
     {
-        $this->createdAt = $dt;
+        $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?DateTime
+    public function getUpdatedAt(): ?string
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTime $dt): void
+    public function setUpdatedAt(?string $updatedAt): void
     {
-        $this->updatedAt = $dt;
+        $this->updatedAt = $updatedAt;
     }
 }
