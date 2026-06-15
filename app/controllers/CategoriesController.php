@@ -29,7 +29,7 @@ class CategoriesController {
             return;
         }
 
-        $result = $this->CategoriesService->createCategory($name);
+        $result = $this->categoriesService->createCategory($name);
         
         $status = $result['success'] ? 200 : 400;
         Response::json($result, $status);
