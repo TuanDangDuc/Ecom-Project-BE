@@ -10,6 +10,11 @@ $router ->get(
     [$productsController, 'show']
 );
 
+$router ->get(
+    '/api/shopProduct/{shopid}',
+    [$productsController, 'shopShow']
+);
+
 $router->post(
     '/api/product',
     [$productsController, 'store']
@@ -25,12 +30,4 @@ $router ->delete(
     [$productsController, 'destroy']
 );
 
-// $router ->get(
-//     '/api/product/{shopid}',
-//     [$productsController, 'shopShow']
-// );
 
-// $router ->get(
-//     'api/products',
-//     [$productsController, 'index']
-// );

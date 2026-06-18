@@ -145,13 +145,19 @@ $productTypesRepository = new ProductTypesRepository($db);
 $productTypesService = new ProductTypesService($productTypesRepository);
 $productTypesController = new ProductTypesController($productTypesService);
 
+//Shop
+$shopRepository = new ShopRepository($db);
+$shopService = new ShopService($shopRepository);
+$shopController = new ShopController($shopService);
+
+
 // regis route cho products
 $productRepository = new ProductRepository($db);
-$productService = new ProductService($productRepository);
+$productService = new ProductService($productRepository, $shopRepository);
 $productsController = new ProductController($productService);
 
 $variantRepository = new VariantRepository($db);
-$variantService = new VariantService($variantRepository);
+$variantService = new VariantService($variantRepository,$productRepository);
 $variantController = new VariantController($variantService);
 
 $productImageRepository = new ProductImageRepository($db);
@@ -187,11 +193,6 @@ $orderController = new OrderController($orderService);
 $reviewRepository = new ReviewRepository($db);
 $reviewService = new ReviewService($reviewRepository);
 $reviewController = new ReviewController($reviewService);
-
-//Shop
-$shopRepository = new ShopRepository($db);
-$shopService = new ShopService($shopRepository);
-$shopController = new ShopController($shopService);
 
 //Address
 $addressRepository = new AddressRepository($db);

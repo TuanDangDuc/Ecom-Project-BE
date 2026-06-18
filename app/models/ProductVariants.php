@@ -65,4 +65,18 @@ class ProductVariants
     {
         $this->productId = $productId;
     }
+
+    public static function fromArray(array $data): self
+    {
+        $variant = new self();
+
+        $variant->id = (int)$data['id'];
+        $variant->stock = (int)$data['stock'];
+        $variant->options = $data['options'];
+        $variant->price = (float)$data['price'];
+        $variant->productId = (int)$data['productId'];
+
+        return $variant;
+    }
+    
 }

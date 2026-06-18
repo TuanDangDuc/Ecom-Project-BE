@@ -3,19 +3,20 @@
 class VariantService
 {
     private IVariantRepository $variantRepository;
+    private IProductRepository $productRepository;
 
     public function __construct(
-        IVariantRepository $variantRepository
+        IVariantRepository $variantRepository,
+        IProductRepository $productRepository
     ) {
         $this->variantRepository = $variantRepository;
+        $this->productRepository = $productRepository;
     }
 
     public function getVariantsByProductId(int $productId): array
     {
-        if($this->ProductRepository->findById($productId))
+        if(!$this->productRepository->findById($productId))
             return ['success' => false, 'message' => "This product doesn't exists."];
-
-        $variant = VariantMapper::CreateVariantDtoRequestToVariant($request);
 
         return [
             'success' => true,

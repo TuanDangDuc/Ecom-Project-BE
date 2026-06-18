@@ -3,11 +3,14 @@
 class ProductService
 {
     private IProductRepository $productRepository;
+    private IShopRepository $shopRepository;
 
     public function __construct(
-        IProductRepository $productRepository
-    ) {
+        IProductRepository $productRepository,
+        IShopRepository $shopRepository
+        ) {
         $this->productRepository = $productRepository;
+        $this->shopRepository = $shopRepository;
     }
 
     public function getAllProducts(): array
@@ -26,10 +29,19 @@ class ProductService
         return ['success' => true, 'data' => $product];
     }
 
+    public function showShopProduct(int $shopId): array
+    {
+        if (!$this->shopRepository->findById($shopId)){
+            return['success' => false, 'message' => 'Shop not found.'];
+        }
+
+        return $this->productRepository->showShopProduct($shopId);
+    }
+
     public function createProduct(CreateProductDtoRequest $request): array
     {
-        // if (!$this->shopRepository->checkExistsById($request->shopId))
-        //     return ['success' => false, 'message' => 'Shop id dont valid.'];
+        if (!$this->shopRepository->findById($request->shopId))
+            return ['success' => false, 'message' => 'Shop id dont valid.'];
 
         $product = ProductMapper::CreateProductDtoRequestToProduct($request);
         $saveResult = $this->productRepository->create($product);

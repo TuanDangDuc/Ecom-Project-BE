@@ -24,7 +24,7 @@ class VariantRepository implements IVariantRepository
         $stmt->execute([$id]);
 
         $productVariant = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $productVariant ?: null;
+        return $productVariant ?ProductVariants::fromArray($productVariant) : null;
         }
 
     public function create(ProductVariants $variant): bool

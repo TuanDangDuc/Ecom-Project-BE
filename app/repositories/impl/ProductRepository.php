@@ -10,6 +10,7 @@ class ProductRepository implements IProductRepository
     {
         $sql = "SELECT * FROM product";
         $stmt = $this->db->prepare($sql);
+        $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -25,6 +26,16 @@ class ProductRepository implements IProductRepository
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $product ?: null;
+    }
+
+    public function showShopProduct(int $shopId): array
+    {
+        $stmt = $this->db->prepare( "SELECT * From product Where shopId = ?");
+        
+        $stmt->execute([$shopId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
     }
 
     public function create(Product $product): bool

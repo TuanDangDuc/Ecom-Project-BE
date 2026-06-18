@@ -9,17 +9,22 @@ class ProductController {
         $this->productService = $productService;
     }
 
-    public function show($id): void
-    {
-        $result = $this->productService->getProductById($id);
-        $status = $result['success'] ? 200 : 404;
-        Response::json($result, $status);
-
-    }
-
     public function index(): void
     {
         $result = $this->productService->getAllProducts();
+        Response::json($result, 200);
+    }
+
+    public function show($id): void
+    {
+        $result = $this->productService->getProductById($id);
+        $status = $result['success'] ? 200 : 400;
+        Response::json($result, $status);
+    }
+
+    public function shopShow($shopId): void
+    {
+        $result = $this->productService->showShopProduct($shopId);
         
         Response::json($result, 200);
     }
