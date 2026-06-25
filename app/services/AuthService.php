@@ -93,9 +93,12 @@ class AuthService {
 
         $this->redis->setex($cooldownKey, 60, '1');
 
-        $this->mailService->sendEmail($request->email, (string)$otp);
+        if (!$this->mailService->sendEmail($request->email, (string)$otp)) {
+            return ['success' => false, 'message' => 'Failed to send OTP email.'];
+        }
 
         return [
+            'success' => true,
             'status' => 200,
             'message' => 'OTP sent',
             'requestId' => $requestId

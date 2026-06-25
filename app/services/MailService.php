@@ -8,7 +8,7 @@ class MailService {
 
     public function sendEmail(
         string $email, string $otp
-    ) {
+    ): bool {
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
@@ -31,12 +31,12 @@ class MailService {
 
             if (empty($from) || !filter_var($from, FILTER_VALIDATE_EMAIL)) {
                 error_log('MailService: missing or invalid MAIL_FROM; aborting sendEmail');
-                return;
+                return false;
             }
 
             if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 error_log("MailService: invalid recipient email: $email");
-                return;
+                return false;
             }
             
             
@@ -47,9 +47,10 @@ class MailService {
             $mail->Subject = 'Your OTP Code';
             $mail->Body    = "Your OTP code is: <b>$otp</b>";
 
-            $mail->send();
+            return $mail->send();
         } catch (Exception $e) {
             error_log("Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+            return false;
         }
     }
 }
