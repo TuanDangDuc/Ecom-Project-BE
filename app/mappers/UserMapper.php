@@ -36,14 +36,23 @@ class UserMapper
     }
 
     public static function modifyUserDtoRequestToUser(ModifyUserDtoRequest $request): Users {
-        $sex = $request->sex == 'MALE' ? Sex::MALE : ($request->sex == 'FEMALE' ? Sex::FEMALE : Sex::OTHER);
-        
+        $sex = $request->sex == 'MALE'
+            ? Sex::MALE
+            : ($request->sex == 'FEMALE' ? Sex::FEMALE : Sex::OTHER);
+
         $user = new Users();
         $user->setEmail($request->email);
         $user->setFullName($request->fullName);
         $user->setSex($sex);
-        $user->setDateOfBirth($request->dateOfBirth);
-        $user->setAvatarUrl($request->avatarUrl);
+
+        if ($request->dateOfBirth instanceof DateTime) {
+            $user->setDateOfBirth($request->dateOfBirth);
+        } elseif (!empty($request->dateOfBirth)) {
+            $user->setDateOfBirth(new DateTime($request->dateOfBirth));
+        }
+
+        $user->setAvatarUrl($request->avatarUrl ?? '');
+
         return $user;
     }
 

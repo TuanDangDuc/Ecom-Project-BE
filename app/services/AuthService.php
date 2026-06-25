@@ -55,7 +55,7 @@ class AuthService {
         return [
             'success' => true,
             'message' => 'Login successful.',
-            'role' => $user->getRole()
+            'role' => $user->getRole()?->value
         ];
     }
 

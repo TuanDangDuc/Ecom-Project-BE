@@ -51,13 +51,37 @@ class UserRepository implements IUserRepository
         $statement = $this->db->prepare($sql);
         $statement->execute([$username]);
         
-        $data = $statement->fetch();
+        $data = $statement->fetch(PDO::FETCH_ASSOC);
 
         if (!$data) {
             return null;
         }
 
-        return new Users($data['username'], $data['password'], Role::from($data['role'] ?? 'USER'));
+        $user = new Users();
+        $user->setId((int)$data['id']);
+        $user->setUsername($data['username']);
+        $user->setPassword($data['password']);
+        $user->setEmail($data['email']);
+        $user->setRole(Role::from($data['role'] ?? 'BUYER'));
+        $user->setAccountStatus(AccountStatus::from($data['accountStatus'] ?? 'ACTIVE'));
+
+        if (!empty($data['fullName'])) {
+            $user->setFullName($data['fullName']);
+        }
+
+        if (!empty($data['sex'])) {
+            $user->setSex(Sex::from($data['sex']));
+        }
+
+        if (!empty($data['dateOfBirth'])) {
+            $user->setDateOfBirth(new DateTime($data['dateOfBirth']));
+        }
+
+        if (!empty($data['avatarUrl'])) {
+            $user->setAvatarUrl($data['avatarUrl']);
+        }
+
+        return $user;
     }
 
     public function findByEmail(string $email): ?Users
@@ -67,13 +91,37 @@ class UserRepository implements IUserRepository
         $statement = $this->db->prepare($sql);
         $statement->execute([$email]);
         
-        $data = $statement->fetch();
+        $data = $statement->fetch(PDO::FETCH_ASSOC);
 
         if (!$data) {
             return null;
         }
 
-        return new Users($data['username'], $data['password'], Role::from($data['role'] ?? 'USER'));
+        $user = new Users();
+        $user->setId((int)$data['id']);
+        $user->setUsername($data['username']);
+        $user->setPassword($data['password']);
+        $user->setEmail($data['email']);
+        $user->setRole(Role::from($data['role'] ?? 'BUYER'));
+        $user->setAccountStatus(AccountStatus::from($data['accountStatus'] ?? 'ACTIVE'));
+
+        if (!empty($data['fullName'])) {
+            $user->setFullName($data['fullName']);
+        }
+
+        if (!empty($data['sex'])) {
+            $user->setSex(Sex::from($data['sex']));
+        }
+
+        if (!empty($data['dateOfBirth'])) {
+            $user->setDateOfBirth(new DateTime($data['dateOfBirth']));
+        }
+
+        if (!empty($data['avatarUrl'])) {
+            $user->setAvatarUrl($data['avatarUrl']);
+        }
+
+        return $user;
     }
 
     public function updatePasswordByEmail(string $email, string $hashedPassword): bool
