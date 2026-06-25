@@ -3,7 +3,6 @@
 /composer.phar
 
 # Environment
-.env
 .env.local
 .env.*
 
