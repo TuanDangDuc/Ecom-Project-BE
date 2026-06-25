@@ -2,8 +2,7 @@
 
 $allowed_origins = [
     'http://localhost:8000',
-    'https://studyhub.anhchuno.id.vn',
-    'http://studyhub.anhchuno.id.vn',
+    'https://ecom.anhchuno.id.vn',
     'http://localhost:5173'
 ];
 
