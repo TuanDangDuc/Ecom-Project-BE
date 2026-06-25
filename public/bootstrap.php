@@ -104,6 +104,9 @@ require_once __DIR__ . '/../app/models/Reviews.php';
 require_once __DIR__ . '/../app/models/Shop.php';
 require_once __DIR__ . '/../app/models/Users.php';
 
+// DTO Responses
+require_once __DIR__ . '/../app/dto/response/UserDtoResponse.php';
+
 // DTO Requests
 require_once __DIR__ . '/../app/dto/request/AddToCartDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/CheckoutDtoRequest.php';
