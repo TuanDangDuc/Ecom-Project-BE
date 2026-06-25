@@ -1,9 +1,9 @@
-FROM php:8.1-cli
+FROM composer:2
 
 WORKDIR /var/www/html
-
 COPY . .
 
 RUN composer install
 
 EXPOSE 8000
+CMD ["php", "-S", "8000", "-t", "public"]
