@@ -1,15 +1,24 @@
 {
-    "require": {
-        "phpmailer/phpmailer": "^7.1",
-        "predis/predis": "^3.5",
-        "vlucas/phpdotenv": "^5.6"
+    "name": "lenovo/ecom-project-be",
+    "autoload": {
+        "psr-4": {
+            "Lenovo\\EcomProjectBe\\": "src/"
+        }
     },
-    "config": {
-        "disable-tls": true
+    "authors": [
+        {
+            "name": "Trung-Tuan",
+            "email": "trungtuan190306@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6",
+        "predis/predis": "^3.5",
+        "phpmailer/phpmailer": "^7.1"
     },
     "repositories": [{
         "name": "packagist",
         "type": "composer",
-        "url": "http://packagist.org"
+        "url": "http://repo.packagist.org"
     }]
 }

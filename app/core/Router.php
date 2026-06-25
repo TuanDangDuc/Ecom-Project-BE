@@ -35,7 +35,17 @@ class Router
 
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-        $handler = $this->routes[$method][$path] ?? null;
+        $handler = null;
+        $params = [];
+
+        foreach ($this->routes[$method] ?? [] as $routePath => $routeHandler) {
+            $matched = $this->matchRoute($routePath, $path, $params);
+
+            if ($matched) {
+                $handler = $routeHandler;
+                break;
+            }
+        }
 
         if ($handler === null) {
             Response::json([
@@ -45,6 +55,30 @@ class Router
             return;
         }
 
-        call_user_func($handler);
+        if ($params === []) {
+            call_user_func($handler);
+            return;
+        }
+
+        call_user_func_array($handler, $params);
+    }
+
+    private function matchRoute(string $routePath, string $path, array &$params): bool
+    {
+        preg_match_all('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', $routePath, $matches);
+        $paramNames = $matches[1];
+
+        $pattern = preg_replace('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', '([^/]+)', $routePath);
+        $pattern = '#^' . str_replace('/', '\/', $pattern) . '$#';
+
+        if (!preg_match($pattern, $path, $routeMatches)) {
+            return false;
+        }
+
+        foreach ($paramNames as $index => $name) {
+            $params[] = $routeMatches[$index + 1];
+        }
+
+        return true;
     }
 }

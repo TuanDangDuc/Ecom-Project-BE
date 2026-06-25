@@ -3,6 +3,6 @@ use Predis\Client;
 
 return [
     'scheme' => 'tcp',
-    'host' => $_ENV['REDIS_HOST'],
-    'port' => $_ENV['REDIS_PORT']
+    'host' => getenv('REDIS_HOST') ?: '127.0.0.1',
+    'port' => (int)(getenv('REDIS_PORT') ?: 6379),
 ];
