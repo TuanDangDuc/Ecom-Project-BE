@@ -27,6 +27,13 @@ class ProductController {
         Response::json($result, $status);
     }
 
+    public function categoryShow($categoryId): void
+    {
+        $result = $this->productService->showProductByCategory($categoryId);
+        
+        Response::json($result, 200);
+    }
+
     public function shopShow($shopId): void
     {
         $result = $this->productService->showShopProduct($shopId);

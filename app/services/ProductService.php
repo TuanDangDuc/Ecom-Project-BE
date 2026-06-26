@@ -4,13 +4,16 @@ class ProductService
 {
     private IProductRepository $productRepository;
     private IShopRepository $shopRepository;
+    private ICategoriesRepository $categoriesRepository;
 
     public function __construct(
         IProductRepository $productRepository,
-        IShopRepository $shopRepository
+        IShopRepository $shopRepository,
+        ICategoriesRepository $categoriesRepository
         ) {
         $this->productRepository = $productRepository;
         $this->shopRepository = $shopRepository;
+        $this->categoriesRepository = $categoriesRepository;
     }
 
     public function getAllProducts(array $filters = []): array
@@ -27,6 +30,15 @@ class ProductService
         }
 
         return ['success' => true, 'data' => $product];
+    }
+
+    public function showProductByCategory(int $categoryId): array
+    {
+        if (!$this->categoriesRepository->checkExistsById($categoryId)){
+            return['success' => false, 'message' => 'Category not found.'];
+        }
+
+        return $this->productRepository->showProductByCategory($categoryId);
     }
 
     public function showShopProduct(int $shopId): array

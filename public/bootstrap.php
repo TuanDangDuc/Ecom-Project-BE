@@ -157,7 +157,7 @@ $shopController = new ShopController($shopService);
 
 // regis route cho products
 $productRepository = new ProductRepository($db);
-$productService = new ProductService($productRepository, $shopRepository);
+$productService = new ProductService($productRepository, $shopRepository, $categoriesRepository);
 $productsController = new ProductController($productService);
 
 $variantRepository = new VariantRepository($db);

@@ -42,6 +42,16 @@ class ProductRepository implements IProductRepository
         return $product ?: null;
     }
 
+    public function showProductByCategory(int $categoryId): array
+    {
+        $stmt = $this->db->prepare( "SELECT * From product Where categoryId = ?");
+        
+        $stmt->execute([$categoryId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+    }
+
     public function showShopProduct(int $shopId): array
     {
         $stmt = $this->db->prepare( "SELECT * From product Where shopId = ?");

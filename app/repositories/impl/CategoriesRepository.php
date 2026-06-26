@@ -25,6 +25,16 @@ class CategoriesRepository implements ICategoriesRepository
         return $statement->fetch() !== false;
     }
 
+    public function checkExistsById(int $id): bool
+    {
+        $sql = "select * from category where id = ?";
+
+        $statement = $this->db->prepare($sql);
+        $statement->execute([$id]);
+        
+        return $statement->fetch() !== false;
+    }
+
     public function create(string $name): bool
     {
         $sql = "insert into category (name) values (?)";

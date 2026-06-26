@@ -11,6 +11,11 @@ $router ->get(
 );
 
 $router ->get(
+    '/api/categoryProduct/{categoryid}',
+    [$productsController, 'categoryShow']
+);
+
+$router ->get(
     '/api/shopProduct/{shopid}',
     [$productsController, 'shopShow']
 );
