@@ -34,4 +34,26 @@ class CategoriesController {
         $status = $result['success'] ? 200 : 400;
         Response::json($result, $status);
     }
+
+    public function update($id): void
+    {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $name = trim($data['name'] ?? '');
+
+        if ($name === '') {
+            Response::json(['message' => 'Name is required'], 400);
+            return;
+        }
+
+        $result = $this->categoriesService->updateCategory((int)$id, $name);
+        $status = $result['success'] ? 200 : 400;
+        Response::json($result, $status);
+    }
+
+    public function destroy($id): void
+    {
+        $result = $this->categoriesService->deleteCategory((int)$id);
+        $status = $result['success'] ? 200 : 400;
+        Response::json($result, $status);
+    }
 }

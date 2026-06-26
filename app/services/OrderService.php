@@ -213,4 +213,61 @@ class OrderService
             return ['success' => false, 'message' => $e->getMessage()];
         }
     }
+
+    public function updateOrderItemStatus(int $userId, string $role, int $orderItemId, UpdateOrderStatusDtoRequest $request): array
+    {
+        $err = $request->validate();
+        if ($err) {
+            return ['success' => false, 'message' => $err];
+        }
+        
+        $status = strtoupper($request->status);
+
+        $orderItem = $this->orderRepository->getOrderItemById($orderItemId);
+        if (!$orderItem) {
+            return ['success' => false, 'message' => 'Order item not found.'];
+        }
+
+        $orderId = $orderItem->getOrderId();
+        $order = $this->orderRepository->findOrderById($orderId);
+        if (!$order) {
+            return ['success' => false, 'message' => 'Order not found.'];
+        }
+
+        $isOwner = ($order->getUserId() === $userId);
+        $isAdminOrSeller = ($role === 'ADMIN' || $role === 'SELLER');
+
+        if (!$isOwner && !$isAdminOrSeller) {
+            return ['success' => false, 'message' => 'Unauthorized action.'];
+        }
+
+        $currentStatus = $orderItem->getOrderStatus();
+
+        if ($isOwner && !$isAdminOrSeller) {
+            if ($status !== 'CANCELED') {
+                return ['success' => false, 'message' => 'Buyers can only cancel their orders.'];
+            }
+            if ($currentStatus !== 'PENDING' && $currentStatus !== 'CANCELED') {
+                return ['success' => false, 'message' => 'Orders can only be canceled if they are still PENDING.'];
+            }
+        }
+
+        try {
+            $this->orderRepository->beginTransaction();
+
+            $this->orderRepository->updateOrderItemStatus($orderItemId, $status);
+
+            if ($status === 'CANCELED' && $currentStatus !== 'CANCELED') {
+                $currentStock = $this->orderRepository->getVariantStock($orderItem->getProductVariantId());
+                $this->orderRepository->updateVariantStock($orderItem->getProductVariantId(), $currentStock + $orderItem->getQuantity());
+            }
+
+            $this->orderRepository->commitTransaction();
+            return ['success' => true, 'message' => "Order item status updated to $status successfully."];
+
+        } catch (Exception $e) {
+            $this->orderRepository->rollbackTransaction();
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
 }

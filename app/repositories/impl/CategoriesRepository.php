@@ -36,4 +36,18 @@ class CategoriesRepository implements ICategoriesRepository
         ]);
 
     }
+
+    public function update(int $id, string $name): bool
+    {
+        $sql = "UPDATE category SET name = ? WHERE id = ?";
+        $statement = $this->db->prepare($sql);
+        return $statement->execute([$name, $id]);
+    }
+
+    public function delete(int $id): bool
+    {
+        $sql = "DELETE FROM category WHERE id = ?";
+        $statement = $this->db->prepare($sql);
+        return $statement->execute([$id]);
+    }
 }

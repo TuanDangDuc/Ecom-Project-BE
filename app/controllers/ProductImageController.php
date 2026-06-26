@@ -11,14 +11,14 @@ class ProductImageController{
 
     public function store($variantId): void
     {
-        $data = json_decode(file_get_contents('php://input'), true);
-        if ($data === null) {
-            Response::json(['success' => false, 'message' => 'Invalid JSON input.'], 400);
+        $userId = AuthHelper::getCurrentUserId();
+        if ($userId === null) {
+            Response::json(['success' => false, 'message' => 'Unauthorized.'], 401);
             return;
         }
 
-        $request = new CreateProductImageDtoRequest($data);
-        $result = $this->productImageService->createImage($variantId, $request);
+        $files = $_FILES ?? [];
+        $result = $this->productImageService->uploadImages((int)$variantId, $files);
         $status = $result['success'] ? 200 : 400;
 
         Response::json($result, $status);

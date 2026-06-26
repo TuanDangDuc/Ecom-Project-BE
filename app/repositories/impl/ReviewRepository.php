@@ -139,4 +139,11 @@ class ReviewRepository implements IReviewRepository
         $updateStmt = $this->db->prepare($updateSql);
         return $updateStmt->execute([$avg, $productId]);
     }
+
+    public function updateShopReply(int $reviewId, string $reply): bool
+    {
+        $sql = "UPDATE reviews SET shopReply = ? WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$reply, $reviewId]);
+    }
 }

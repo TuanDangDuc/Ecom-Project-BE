@@ -11,7 +11,12 @@ class ProductController {
 
     public function index(): void
     {
-        $result = $this->productService->getAllProducts();
+        $filters = [];
+        if (isset($_GET['search'])) {
+            $filters['search'] = $_GET['search'];
+        }
+
+        $result = $this->productService->getAllProducts($filters);
         Response::json($result, 200);
     }
 

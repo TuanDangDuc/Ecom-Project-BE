@@ -181,4 +181,27 @@ class ReviewService
 
         return ['success' => false, 'message' => 'Failed to delete review image.'];
     }
+
+    public function replyToReview(int $userId, string $role, int $reviewId, string $reply): array
+    {
+        if ($role !== 'ADMIN' && $role !== 'SELLER') {
+            return ['success' => false, 'message' => 'Unauthorized. Only sellers or admins can reply to reviews.'];
+        }
+
+        $review = $this->reviewRepository->findReviewById($reviewId);
+        if (!$review) {
+            return ['success' => false, 'message' => 'Review not found.'];
+        }
+
+        if (trim($reply) === '') {
+            return ['success' => false, 'message' => 'Reply cannot be empty.'];
+        }
+
+        $success = $this->reviewRepository->updateShopReply($reviewId, trim($reply));
+        if ($success) {
+            return ['success' => true, 'message' => 'Reply added successfully.'];
+        }
+
+        return ['success' => false, 'message' => 'Failed to add reply.'];
+    }
 }

@@ -67,4 +67,22 @@ class OrderController
         $httpStatus = $result['success'] ? 200 : 400;
         Response::json($result, $httpStatus);
     }
+
+    public function updateOrderItemStatus(string $id): void
+    {
+        $userId = AuthHelper::getCurrentUserId();
+        if ($userId === null) {
+            Response::json(['success' => false, 'message' => 'Unauthorized.'], 401);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        $request = new UpdateOrderStatusDtoRequest($data);
+
+        $role = AuthHelper::getCurrentUserRole(Database::connection());
+
+        $result = $this->orderService->updateOrderItemStatus($userId, $role, (int)$id, $request);
+        $httpStatus = $result['success'] ? 200 : 400;
+        Response::json($result, $httpStatus);
+    }
 }

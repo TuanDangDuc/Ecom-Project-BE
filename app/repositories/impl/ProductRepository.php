@@ -6,11 +6,25 @@ class ProductRepository implements IProductRepository
         private PDO $db
     ) {}
 
-    public function findAll(): array
+    public function findAll(array $filters = []): array
     {
         $sql = "SELECT * FROM product";
+        $conditions = [];
+        $params = [];
+
+        if (isset($filters['search']) && trim($filters['search']) !== '') {
+            $conditions[] = "name LIKE ?";
+            $params[] = '%' . trim($filters['search']) . '%';
+        }
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $sql .= " ORDER BY id DESC";
+
         $stmt = $this->db->prepare($sql);
-        $stmt->execute();
+        $stmt->execute($params);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

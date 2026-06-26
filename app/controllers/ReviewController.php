@@ -57,4 +57,22 @@ class ReviewController
         $status = $result['success'] ? 200 : 400;
         Response::json($result, $status);
     }
+
+    public function replyToReview(string $reviewId): void
+    {
+        $userId = AuthHelper::getCurrentUserId();
+        if ($userId === null) {
+            Response::json(['success' => false, 'message' => 'Unauthorized.'], 401);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? [];
+        $reply = $data['reply'] ?? '';
+
+        $role = AuthHelper::getCurrentUserRole(Database::connection());
+
+        $result = $this->reviewService->replyToReview($userId, $role, (int)$reviewId, $reply);
+        $status = $result['success'] ? 200 : 400;
+        Response::json($result, $status);
+    }
 }

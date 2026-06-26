@@ -33,4 +33,18 @@ class ProductTypesRepository implements IProductTypesRepository
 
         return $statement->execute([$productType->getName(), $productType->getDescription()]);
     }
+
+    public function update(int $id, ProductType $productType): bool
+    {
+        $sql = "UPDATE productType SET name = ?, description = ? WHERE id = ?";
+        $statement = $this->db->prepare($sql);
+        return $statement->execute([$productType->getName(), $productType->getDescription(), $id]);
+    }
+
+    public function delete(int $id): bool
+    {
+        $sql = "DELETE FROM productType WHERE id = ?";
+        $statement = $this->db->prepare($sql);
+        return $statement->execute([$id]);
+    }
 }

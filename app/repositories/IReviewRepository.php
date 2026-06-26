@@ -12,4 +12,5 @@ interface IReviewRepository
     public function getReviewImages(int $reviewId): array;
     public function getOrderItemDetails(int $orderItemId): ?array;
     public function updateProductRatingAverage(int $productId): bool;
+    public function updateShopReply(int $reviewId, string $reply): bool;
 }

@@ -126,6 +126,7 @@ require_once __DIR__ . '/../app/dto/request/ResetPasswordDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/UpdateCartItemDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/UpdateOrderStatusDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/UpdateProductDtoRequest.php';
+require_once __DIR__ . '/../app/dto/request/UpdateProductTypeDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/UpdateShopDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/UpdateVariantDtoRequest.php';
 require_once __DIR__ . '/../app/dto/request/VerifyOtpDtoRequest.php';
