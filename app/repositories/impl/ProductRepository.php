@@ -21,7 +21,24 @@ class ProductRepository implements IProductRepository
             $sql .= " WHERE " . implode(" AND ", $conditions);
         }
 
-        $sql .= " ORDER BY id DESC";
+        $sort = $filters['sort'] ?? null;
+        switch ($sort) {
+            case 'price_asc':
+                $sql .= " ORDER BY basePrice ASC";
+                break;
+            case 'price_desc':
+                $sql .= " ORDER BY basePrice DESC";
+                break;
+            case 'rating_asc':
+                $sql .= " ORDER BY ratingAverage ASC";
+                break;
+            case 'rating_desc':
+                $sql .= " ORDER BY ratingAverage DESC";
+                break;
+            default:
+                $sql .= " ORDER BY id DESC";
+                break;
+        }
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);

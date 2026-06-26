@@ -16,6 +16,10 @@ class ProductController {
             $filters['search'] = $_GET['search'];
         }
 
+        if (isset($_GET['sort'])) {
+            $filters['sort'] = trim($_GET['sort']);
+        }
+
         $result = $this->productService->getAllProducts($filters);
         Response::json($result, 200);
     }
