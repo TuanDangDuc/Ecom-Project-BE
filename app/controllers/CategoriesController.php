@@ -21,7 +21,7 @@ class CategoriesController {
         $data = json_decode(file_get_contents('php://input'), true);
         $name = trim($data['name'] ?? '');
 
-        // validate
+        
         if ($name === '') {
             Response::json([
                 'message' => 'Name is required'

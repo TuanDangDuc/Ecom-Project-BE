@@ -52,7 +52,8 @@ class ReviewRepository implements IReviewRepository
                     r.shopReply,
                     r.createAt,
                     u.fullName AS userFullName,
-                    u.username AS userUsername
+                    u.username AS userUsername,
+                    u.avatarUrl AS userAvatarUrl
                 FROM reviews r
                 JOIN users u ON r.userId = u.id
                 JOIN productVariants pv ON r.productVariantId = pv.id

@@ -69,8 +69,7 @@ class Router
         $paramNames = $matches[1];
 
         $pattern = preg_replace('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', '([^/]+)', $routePath);
-        $pattern = '#^' . str_replace('/', '\/', $pattern) . '$#';
-
+        $pattern = '#^' . $pattern . '$#';
         if (!preg_match($pattern, $path, $routeMatches)) {
             return false;
         }

@@ -12,7 +12,7 @@ class AuthHelper
             return (int) $headers['x-user-id'];
         }
 
-        // Fallback to PHP Session
+        
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }

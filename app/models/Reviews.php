@@ -11,6 +11,9 @@ class Reviews
     private ?string $shopReply = null;
     private ?string $createdAt = null;
     private ?array $images = null;
+    private ?string $userFullName = null;
+    private ?string $userUsername = null;
+    private ?string $userAvatarUrl = null;
 
     public function __construct(array $data = [])
     {
@@ -40,6 +43,15 @@ class Reviews
         }
         if (array_key_exists('images', $data)) {
             $this->images = $data['images'];
+        }
+        if (array_key_exists('userFullName', $data)) {
+            $this->userFullName = $data['userFullName'];
+        }
+        if (array_key_exists('userUsername', $data)) {
+            $this->userUsername = $data['userUsername'];
+        }
+        if (array_key_exists('userAvatarUrl', $data)) {
+            $this->userAvatarUrl = $data['userAvatarUrl'];
         }
     }
 
@@ -145,6 +157,9 @@ class Reviews
             'shopReply' => $this->shopReply,
             'createdAt' => $this->createdAt,
             'images' => $this->images,
+            'userFullName' => $this->userFullName,
+            'userUsername' => $this->userUsername,
+            'userAvatarUrl' => $this->userAvatarUrl,
         ];
     }
 }

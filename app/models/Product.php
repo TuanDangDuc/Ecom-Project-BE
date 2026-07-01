@@ -38,7 +38,7 @@ class Product
         $this->shopId = $shopId;
     }
 
-    // ID
+    
     public function setId(int $id): void
     {
         $this->id = $id;
@@ -49,7 +49,7 @@ class Product
         return $this->id;
     }
 
-    // NAME
+    
     public function setName(?string $name): void
     {
         $this->name = $name;
@@ -60,7 +60,7 @@ class Product
         return $this->name;
     }
 
-    // DESCRIPTION
+    
     public function setDescription(?string $description): void
     {
         $this->description = $description;
@@ -71,7 +71,7 @@ class Product
         return $this->description;
     }
 
-    // PRICE
+    
     public function setPrice(?float $price): void
     {
         $this->price = $price;
@@ -82,7 +82,7 @@ class Product
         return $this->price;
     }
 
-    // THUMBNAIL URL
+    
     public function setThumbnailUrl(?string $thumbnailUrl): void
     {
         $this->thumbnailUrl = $thumbnailUrl;
@@ -93,7 +93,7 @@ class Product
         return $this->thumbnailUrl;
     }
 
-    // IMAGE URL
+    
     public function setImageUrl(?string $imageUrl): void
     {
         $this->imageUrl = $imageUrl;
@@ -104,7 +104,7 @@ class Product
         return $this->imageUrl;
     }
 
-    // BASE PRICE
+    
     public function setBasePrice(?float $basePrice): void
     {
         $this->basePrice = $basePrice;
@@ -115,7 +115,7 @@ class Product
         return $this->basePrice;
     }
 
-    // RATING AVERAGE
+    
     public function setRatingAverage(?float $ratingAverage): void
     {
         $this->ratingAverage = $ratingAverage;
@@ -126,7 +126,7 @@ class Product
         return $this->ratingAverage;
     }
 
-    // SHORT DESCRIPTION
+    
     public function setDescriptionShort(?string $descriptionShort): void
     {
         $this->descriptionShort = $descriptionShort;
@@ -137,7 +137,7 @@ class Product
         return $this->descriptionShort;
     }
 
-    // CATEGORY ID
+    
     public function setCategoryId(?int $categoryId): void
     {
         $this->categoryId = $categoryId;
@@ -148,7 +148,7 @@ class Product
         return $this->categoryId;
     }
 
-    // SHOP ID
+    
     public function setShopId(?int $shopId): void
     {
         $this->shopId = $shopId;
@@ -159,7 +159,7 @@ class Product
         return $this->shopId;
     }
 
-    // PRODUCT TYPE ID
+    
     public function setProductTypeId(?int $productTypeId): void
     {
         $this->productTypeId = $productTypeId;

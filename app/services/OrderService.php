@@ -43,6 +43,16 @@ class OrderService
             $checkoutItems = $cartItems;
         }
 
+        if (!$this->orderRepository->isUserActive($userId)) {
+            return ['success' => false, 'message' => 'Tài khoản của bạn đã bị khóa. Không thể thực hiện đặt hàng.'];
+        }
+
+        foreach ($checkoutItems as $item) {
+            if (!$this->orderRepository->isShopActiveForVariant((int)$item->getProductVariantId())) {
+                return ['success' => false, 'message' => 'Cửa hàng cung cấp sản phẩm "' . $item->getProductName() . '" hiện đang bị đình chỉ hoạt động. Không thể đặt hàng.'];
+            }
+        }
+
         try {
             $this->orderRepository->beginTransaction();
 
@@ -269,5 +279,44 @@ class OrderService
             $this->orderRepository->rollbackTransaction();
             return ['success' => false, 'message' => $e->getMessage()];
         }
+    }
+
+    public function getShopOrders(int $sellerUserId): array
+    {
+        $shop = $this->orderRepository->findShopByUserId($sellerUserId);
+        if (!$shop) {
+            return ['success' => true, 'orders' => []];
+        }
+
+        $shopId = (int)$shop['id'];
+        $orders = $this->orderRepository->findShopOrders($shopId);
+        
+        $ordersArray = [];
+        foreach ($orders as $order) {
+            $orderArr = $order->toArray();
+            
+            $items = $this->orderRepository->getShopOrderItems($order->getId(), $shopId);
+            $itemsArray = [];
+            foreach ($items as $item) {
+                $itemsArray[] = $item->toArray();
+            }
+            
+            $orderArr['items'] = $itemsArray;
+            
+            
+            $rawStatus = !empty($itemsArray) ? $itemsArray[0]['orderStatus'] : 'PENDING';
+            $statusMap = [
+                'PENDING' => 'Chờ xác nhận',
+                'CONFIRMED' => 'Đã xác nhận',
+                'SHIPPING' => 'Đang giao',
+                'COMPLETED' => 'Đã giao',
+                'CANCELED' => 'Đã hủy'
+            ];
+            $orderArr['status'] = $statusMap[$rawStatus] ?? 'Chờ xác nhận';
+            
+            $ordersArray[] = $orderArr;
+        }
+
+        return ['success' => true, 'orders' => $ordersArray];
     }
 }

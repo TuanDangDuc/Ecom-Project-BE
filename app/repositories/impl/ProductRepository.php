@@ -71,12 +71,17 @@ class ProductRepository implements IProductRepository
 
     public function showShopProduct(int $shopId): array
     {
-        $stmt = $this->db->prepare( "SELECT * From product Where shopId = ?");
-        
+        $stmt = $this->db->prepare("SELECT * FROM product WHERE shopId = ?");
         $stmt->execute([$shopId]);
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+        foreach ($products as &$product) {
+            $stmtVar = $this->db->prepare("SELECT * FROM productVariants WHERE productId = ?");
+            $stmtVar->execute([$product['id']]);
+            $product['variants'] = $stmtVar->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return $products;
     }
 
     public function create(Product $product): int
@@ -153,10 +158,60 @@ class ProductRepository implements IProductRepository
 
     public function delete(int $id): bool
     {
-        $stmt = $this->db->prepare(
-            "DELETE FROM product WHERE id = ?"
-        );
+        try {
+            $this->db->beginTransaction();
 
-        return $stmt->execute([$id]);
+            
+            $stmt = $this->db->prepare("SELECT id FROM productVariants WHERE productId = ?");
+            $stmt->execute([$id]);
+            $variantIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+            if (!empty($variantIds)) {
+                $inQuery = implode(',', array_fill(0, count($variantIds), '?'));
+
+                
+                $stmt = $this->db->prepare("SELECT id FROM reviews WHERE productVariantId IN ($inQuery)");
+                $stmt->execute($variantIds);
+                $reviewIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+                if (!empty($reviewIds)) {
+                    $reviewInQuery = implode(',', array_fill(0, count($reviewIds), '?'));
+                    $stmt = $this->db->prepare("DELETE FROM reviewImages WHERE reviewId IN ($reviewInQuery)");
+                    $stmt->execute($reviewIds);
+                }
+
+                
+                $stmt = $this->db->prepare("DELETE FROM reviews WHERE productVariantId IN ($inQuery)");
+                $stmt->execute($variantIds);
+
+                
+                $stmt = $this->db->prepare("DELETE FROM productImages WHERE productVariantId IN ($inQuery)");
+                $stmt->execute($variantIds);
+
+                
+                $stmt = $this->db->prepare("DELETE FROM cartItem WHERE productVariantId IN ($inQuery)");
+                $stmt->execute($variantIds);
+
+                
+                $stmt = $this->db->prepare("DELETE FROM orderItem WHERE productVariantId IN ($inQuery)");
+                $stmt->execute($variantIds);
+
+                
+                $stmt = $this->db->prepare("DELETE FROM productVariants WHERE productId = ?");
+                $stmt->execute([$id]);
+            }
+
+            
+            $stmt = $this->db->prepare("DELETE FROM product WHERE id = ?");
+            $success = $stmt->execute([$id]);
+
+            $this->db->commit();
+            return $success;
+        } catch (Exception $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
     }
 }

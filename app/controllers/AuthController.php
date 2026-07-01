@@ -13,8 +13,8 @@ class AuthController {
     {
         $data = json_decode(file_get_contents('php://input'), true);
 
-        // var_dump($data);
-        // die();
+        
+        
         if ($data === null) {
             Response::json([
                 'success' => false,
@@ -67,8 +67,8 @@ class AuthController {
         Response::json($result, $status);
     }
 
-    // Phải gửi cái requestID từ cái json trả về từ resetPassword thì mới dùng dc cái này
-    // Để hạn chế spam request
+    
+    
     public function verifyOtp() {
         $data = json_decode(file_get_contents('php://input'), true);
 

@@ -157,4 +157,84 @@ class OrderRepository implements IOrderRepository
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$orderId]);
     }
+
+    public function findShopByUserId(int $userId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM shops WHERE userId = ?");
+        $stmt->execute([$userId]);
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $res ?: null;
+    }
+
+    public function findShopOrders(int $shopId): array
+    {
+        $sql = "SELECT DISTINCT o.* FROM orders o
+                JOIN orderItem oi ON o.id = oi.orderId
+                JOIN productVariants pv ON oi.productVariantId = pv.id
+                JOIN product p ON pv.productId = p.id
+                WHERE p.shopId = ?
+                ORDER BY o.createdAt DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$shopId]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $orders = [];
+        foreach ($results as $row) {
+            $orders[] = new Orders($row);
+        }
+        return $orders;
+    }
+
+    public function getShopOrderItems(int $orderId, int $shopId): array
+    {
+        $sql = "SELECT 
+                    oi.id AS id,
+                    oi.orderId,
+                    oi.quantity,
+                    oi.priceAtPurchase,
+                    oi.orderStatus,
+                    oi.trackingNumber,
+                    oi.shippingProvider,
+                    oi.productVariantId,
+                    pv.options AS variantOptions,
+                    p.id AS productId,
+                    p.name AS productName,
+                    p.thumbnailUrl AS productThumbnail
+                FROM orderItem oi
+                JOIN productVariants pv ON oi.productVariantId = pv.id
+                JOIN product p ON pv.productId = p.id
+                WHERE oi.orderId = ? AND p.shopId = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$orderId, $shopId]);
+        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $orderItemObjects = [];
+        foreach ($items as $item) {
+            if (isset($item['variantOptions'])) {
+                $item['variantOptions'] = json_decode($item['variantOptions'], true);
+            }
+            $orderItemObjects[] = new OrderItem($item);
+        }
+        return $orderItemObjects;
+    }
+
+    public function isUserActive(int $userId): bool
+    {
+        $stmt = $this->db->prepare("SELECT accountStatus FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        return !$res || (strtoupper($res['accountStatus'] ?? 'ACTIVE') === 'ACTIVE');
+    }
+
+    public function isShopActiveForVariant(int $productVariantId): bool
+    {
+        $sql = "SELECT s.shopStatus FROM productVariants pv
+                JOIN product p ON pv.productId = p.id
+                JOIN shops s ON p.shopId = s.id
+                WHERE pv.id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$productVariantId]);
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        return !$res || (strtoupper($res['shopStatus'] ?? 'ACTIVE') === 'ACTIVE');
+    }
 }

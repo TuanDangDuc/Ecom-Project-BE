@@ -124,4 +124,9 @@ class ShopController {
         $status = $result['status'] ?? ($result['success'] ? 200 : 400);
         Response::json($result, $status);
     }
+
+    public function getAllShops(): void {
+        $result = $this->shopService->getAllShops();
+        Response::json($result, 200);
+    }
 }

@@ -128,4 +128,21 @@ class ShopService {
             return ['success' => false, 'message' => 'Failed to update shop rating.'];
         }
     }
+
+    public function getAllShops(): array {
+        $shops = $this->shopRepository->findAll();
+        $data = [];
+        foreach ($shops as $shop) {
+            $data[] = [
+                'id' => $shop->getId(),
+                'name' => $shop->getName(),
+                'description' => $shop->getDescription(),
+                'status' => $shop->getStatus()->value,
+                'avatarUrl' => $shop->getAvatarUrl(),
+                'ratingAverage' => $shop->getRatingAverage(),
+                'userId' => $shop->getUserId()
+            ];
+        }
+        return ['success' => true, 'data' => $data];
+    }
 }

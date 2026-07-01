@@ -25,7 +25,7 @@ class MailService {
 
             $mail->Port = (int)($_ENV['MAIL_PORT'] ?: 587);
 
-            // From address fallback and validation
+            
             $from =  $_ENV['MAIL_FROM'];
             $fromName =  $_ENV['MAIL_FROM_NAME'];
 

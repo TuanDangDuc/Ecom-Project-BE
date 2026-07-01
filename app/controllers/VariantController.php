@@ -23,7 +23,7 @@ class VariantController{
             return;
         }
 
-        // Add productId from path parameter to the data array for validation
+        
         $data['productId'] = (int)$productId;
 
         $request = new CreateVariantDtoRequest($data);

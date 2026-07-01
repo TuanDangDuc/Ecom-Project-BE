@@ -16,4 +16,9 @@ interface IOrderRepository
     function getVariantStock(int $productVariantId): int;
     function updateVariantStock(int $productVariantId, int $newStock): bool;
     function setOrderCanceledTime(int $orderId): bool;
+    function findShopByUserId(int $userId): ?array;
+    function findShopOrders(int $shopId): array;
+    function getShopOrderItems(int $orderId, int $shopId): array;
+    function isUserActive(int $userId): bool;
+    function isShopActiveForVariant(int $productVariantId): bool;
 }

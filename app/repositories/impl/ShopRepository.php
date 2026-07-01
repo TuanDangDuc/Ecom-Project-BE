@@ -88,4 +88,25 @@ class ShopRepository implements IShopRepository{
         $statement = $this->db->prepare($sql);
         return $statement->execute([$id]);
     }
+
+    public function findAll(): array {
+        $sql = "select * from shops";
+        $statement = $this->db->prepare($sql);
+        $statement->execute();
+        $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
+        
+        $shops = [];
+        foreach ($rows as $data) {
+            $shop = new Shop();
+            $shop->setId($data['id']);
+            $shop->setName($data['name']);
+            $shop->setDescription($data['description']);
+            $shop->setStatus(ShopStatus::from($data['shopStatus']));
+            $shop->setAvatarUrl($data['avatarUrl']);
+            $shop->setRatingAverage((float)$data['ratingAverage']);
+            $shop->setUserId($data['userId']);
+            $shops[] = $shop;
+        }
+        return $shops;
+    }
 }

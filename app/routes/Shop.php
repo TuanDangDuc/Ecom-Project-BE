@@ -5,6 +5,11 @@ $router->post(
     [$shopController, 'createShop']
 );
 
+$router->get(
+    "/api/shop",
+    [$shopController, 'getAllShops']
+);
+
 $router->put(
     "/api/shop",
     [$shopController, 'updateShop']

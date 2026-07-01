@@ -10,7 +10,7 @@ class UserController
         $this->userService = $userService;
     }
     
-    // này là request param chứ kp body đâu
+    
     public function getAllUserByPage(): void
     {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;

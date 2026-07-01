@@ -33,7 +33,12 @@ class OrderController
             return;
         }
 
-        $result = $this->orderService->getUserOrders($userId);
+        $role = AuthHelper::getCurrentUserRole(Database::connection());
+        if ($role === 'SELLER') {
+            $result = $this->orderService->getShopOrders($userId);
+        } else {
+            $result = $this->orderService->getUserOrders($userId);
+        }
         Response::json($result, 200);
     }
 

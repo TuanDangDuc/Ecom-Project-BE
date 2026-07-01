@@ -8,4 +8,5 @@ interface IShopRepository {
     public function updateShopStatus(int $id, string $status): bool;
     public function updateShopRating(int $id, float $rating): bool;
     public function deleteShop(int $id): bool;
+    public function findAll(): array;
 }

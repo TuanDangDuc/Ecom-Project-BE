@@ -39,10 +39,10 @@ class ProductTypesService {
         if ($err) return ['success' => false, 'message' => $err];
 
         if ($this->productTypesRepository->checkExistsByName($request->name)) {
-            // It could be the same category but let's assume we allow updating other fields.
-            // Wait, we need to make sure we don't conflict with *another* category, but we don't have id check in checkExistsByName.
-            // Simplified check or just let it fail at db constraint if it exists. 
-            // Better to remove check or assume it's valid if we don't check ID.
+            
+            
+            
+            
         }
 
         $productType = ProductTypeMapper::UpdateProductTypeDtoRequestToProductType($request);
