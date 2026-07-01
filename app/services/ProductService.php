@@ -59,7 +59,7 @@ class ProductService
         $saveResult = $this->productRepository->create($product);
 
         if ($saveResult) {
-            return ['success' => true, 'message' => 'Product created successfully.', 'data' => $saveResult];
+            return ['success' => true, 'message' => 'Product created successfully.', 'data' => ['id' => $saveResult]];
         }
 
         return ['success' => false, 'message' => 'Failed to create product.'];

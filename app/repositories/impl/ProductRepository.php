@@ -79,7 +79,7 @@ class ProductRepository implements IProductRepository
         
     }
 
-    public function create(Product $product): bool
+    public function create(Product $product): int
     {
         $sql = "
         INSERT INTO product
@@ -99,7 +99,7 @@ class ProductRepository implements IProductRepository
 
         $stmt = $this->db->prepare($sql);
 
-        return $stmt->execute([
+        $success = $stmt->execute([
             $product->getName(),
             $product->getProductTypeId(),
             $product->getThumbnailUrl(),
@@ -111,6 +111,10 @@ class ProductRepository implements IProductRepository
             $product->getDescription()
         ]);
 
+        if ($success) {
+            return (int)$this->db->lastInsertId();
+        }
+        return 0;
     }
 
     public function update(int $id, Product $product): bool

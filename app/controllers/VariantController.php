@@ -23,6 +23,9 @@ class VariantController{
             return;
         }
 
+        // Add productId from path parameter to the data array for validation
+        $data['productId'] = (int)$productId;
+
         $request = new CreateVariantDtoRequest($data);
         $result = $this->variantService->createVariant($productId, $request);
         $status = $result['success'] ? 200 : 400;

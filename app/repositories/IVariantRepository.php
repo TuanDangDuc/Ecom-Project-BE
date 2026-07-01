@@ -4,7 +4,7 @@ interface IVariantRepository
 {
     function findAllByProductId(int $productId): array;
     function findById(int $id): ?ProductVariants;
-    function create(ProductVariants $variant): bool;
+    function create(ProductVariants $variant): int;
     function update(int $id, ProductVariants $variant): bool;
     function delete(int $id): bool;
 }

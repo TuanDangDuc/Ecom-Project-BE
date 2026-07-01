@@ -36,7 +36,7 @@ class VariantService
         $saveResult = $this->variantRepository->create($variant);
 
         if ($saveResult) {
-            return ['success' => true, 'message' => 'Variant created successfully.'];
+            return ['success' => true, 'message' => 'Variant created successfully.', 'data' => ['id' => $saveResult]];
         }
 
         return ['success' => false, 'message' => 'Failed to create variant.'];

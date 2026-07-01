@@ -29,7 +29,7 @@ class VariantMapper
         }
 
         if ($request->options !== null) {
-            $variant->setOptions(json_decode($request->options, true));
+            $variant->setOptions($request->options);
         }
 
         return $variant;

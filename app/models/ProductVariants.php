@@ -4,11 +4,11 @@ class ProductVariants
 {
     private ?int $id = null;
     private ?int $stock = null;
-    private ?array $options = [];
+    private ?string $options = null;
     private ?float $price = null;
     private ?int $productId = null;
 
-    public function __construct(?int $stock = null, ?array $options = [], ?float $price = null, ?int $productId = null)
+    public function __construct(?int $stock = null, ?string $options = null, ?float $price = null, ?int $productId = null)
     {
         $this->stock = $stock;
         $this->options = $options;
@@ -36,12 +36,12 @@ class ProductVariants
         $this->stock = $stock;
     }
 
-    public function getOptions(): ?array
+    public function getOptions(): ?string
     {
         return $this->options;
     }
 
-    public function setOptions(?array $options): void
+    public function setOptions(?string $options): void
     {
         $this->options = $options;
     }
