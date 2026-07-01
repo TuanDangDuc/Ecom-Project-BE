@@ -9,7 +9,7 @@
 // ];
 return [
     'host' => 'DB_WB',
-    'port' => 4321,
+    'port' => 3306,
     'dbname' => 'dbwb',
     'user' => 'root',
     'pass' => '1234'
