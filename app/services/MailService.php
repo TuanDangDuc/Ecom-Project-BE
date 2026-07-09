@@ -65,8 +65,7 @@ class MailService {
             return $result;
 
         } catch (Exception $e) {
-            error_log("MailService: send failed. ErrorInfo={$mail->ErrorInfo} | Exception={$e->getMessage()}");
-            return false;
+            throw new \RuntimeException("MailService SMTP failed. ErrorInfo={$mail->ErrorInfo} | {$e->getMessage()}");
         }
     }
 }
