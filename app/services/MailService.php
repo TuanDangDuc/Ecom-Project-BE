@@ -20,6 +20,8 @@ class MailService {
     ): bool {
         $host     = $this->env('MAIL_HOST', 'mail.newbiemt.id.vn');
         $port     = (int)$this->env('MAIL_PORT', '587');
+        $username = $this->env('MAIL_USERNAME', 'ecom-noreply@newbiemt.id.vn');
+        $password = $this->env('MAIL_PASSWORD');
         $from     = $this->env('MAIL_FROM', 'ecom-noreply@newbiemt.id.vn');
         $fromName = $this->env('MAIL_FROM_NAME', 'Ecom');
 
@@ -47,7 +49,9 @@ class MailService {
             $mail->isSMTP();
             $mail->Host       = $host;
             $mail->Port       = $port;
-            $mail->SMTPAuth   = false;
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $username;
+            $mail->Password   = $password;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
 
             $mail->setFrom($from, $fromName);
