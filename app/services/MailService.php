@@ -41,6 +41,9 @@ class MailService {
         $mail = new PHPMailer(true);
         try {
             $mail->SMTPDebug  = SMTP::DEBUG_SERVER;
+            $mail->Debugoutput = function(string $str, int $level): void {
+                error_log("PHPMailer[$level]: " . trim($str));
+            };
             $mail->isSMTP();
             $mail->Host       = $host;
             $mail->Port       = $port;
