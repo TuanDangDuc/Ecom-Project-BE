@@ -77,21 +77,26 @@ class AuthService {
         if (!$user) 
             return ['success' => false, 'message' => 'Email not found.'];
         
-        $cooldownKey = "forgotPassword:cooldown:$request->email";
-        if ($this->redis->exists($cooldownKey))
-            return ['success' => false, 'message' => 'Please wait before requesting another OTP'];
+        try {
+            $cooldownKey = "forgotPassword:cooldown:$request->email";
+            if ($this->redis->exists($cooldownKey))
+                return ['success' => false, 'message' => 'Please wait before requesting another OTP'];
 
-        $requestId = bin2hex(random_bytes(16));
-        $otp = random_int(100000, 999999);
-        $otpKey = "forgotPassword:otp:$requestId";
+            $requestId = bin2hex(random_bytes(16));
+            $otp = random_int(100000, 999999);
+            $otpKey = "forgotPassword:otp:$requestId";
 
-        $this->redis->setex($otpKey, 300, json_encode([
-            "email" => $request->email,
-            "otp" => password_hash((string)$otp, PASSWORD_BCRYPT),
-            "verified" => false
-        ]));
+            $this->redis->setex($otpKey, 300, json_encode([
+                "email" => $request->email,
+                "otp" => password_hash((string)$otp, PASSWORD_BCRYPT),
+                "verified" => false
+            ]));
 
-        $this->redis->setex($cooldownKey, 60, '1');
+            $this->redis->setex($cooldownKey, 60, '1');
+        } catch (\Exception $e) {
+            error_log("Redis connection failed in forgotPassword: " . $e->getMessage());
+            return ['success' => false, 'message' => 'Lỗi kết nối Redis. Vui lòng đảm bảo Redis server đang chạy.'];
+        }
 
         if (!$this->mailService->sendEmail($request->email, (string)$otp)) {
             return ['success' => false, 'message' => 'Failed to send OTP email.'];
@@ -114,8 +119,13 @@ class AuthService {
         if ($err) 
             return ['success' => false, 'message' => $err];
 
-        $otpKey = "forgotPassword:otp:$request->requestId";
-        $data = $this->redis->get($otpKey);
+        try {
+            $otpKey = "forgotPassword:otp:$request->requestId";
+            $data = $this->redis->get($otpKey);
+        } catch (\Exception $e) {
+            error_log("Redis error in verifyOtp: " . $e->getMessage());
+            return ['status' => 500, 'message' => 'Lỗi kết nối Redis. Vui lòng thử lại sau.'];
+        }
 
         if (!$data) {
             return ['status' => 400, 'message' => 'OTP expired or invalid'];
@@ -129,7 +139,11 @@ class AuthService {
 
         $payload['verified'] = true;
 
-        $this->redis->setex($otpKey, 300, json_encode($payload));
+        try {
+            $this->redis->setex($otpKey, 300, json_encode($payload));
+        } catch (\Exception $e) {
+            error_log("Redis error in verifyOtp save: " . $e->getMessage());
+        }
 
         return [
             'status' => 200,
@@ -146,8 +160,13 @@ class AuthService {
         if ($err) 
             return ['success' => false, 'message' => $err];
 
-        $otpKey = "forgotPassword:otp:$request->requestId";
-        $data = $this->redis->get($otpKey);
+        try {
+            $otpKey = "forgotPassword:otp:$request->requestId";
+            $data = $this->redis->get($otpKey);
+        } catch (\Exception $e) {
+            error_log("Redis error in resetPassword: " . $e->getMessage());
+            return ['status' => 500, 'message' => 'Lỗi kết nối Redis. Vui lòng thử lại sau.'];
+        }
 
         if (!$data) {
             return ['status' => 400, 'message' => 'Reset request expired'];
@@ -166,7 +185,11 @@ class AuthService {
             $hashedPassword
         );
 
-        $this->redis->del([$otpKey]);
+        try {
+            $this->redis->del([$otpKey]);
+        } catch (\Exception $e) {
+            error_log("Redis error in resetPassword del: " . $e->getMessage());
+        }
 
         return [
             'status' => 200,
