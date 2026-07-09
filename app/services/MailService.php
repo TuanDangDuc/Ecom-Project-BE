@@ -20,7 +20,7 @@ class MailService {
     ): bool {
         $host     = $this->env('MAIL_HOST', 'mail.newbiemt.id.vn');
         $port     = (int)$this->env('MAIL_PORT', '587');
-        $from     = $this->env('MAIL_FROM');
+        $from     = $this->env('MAIL_FROM', 'ecom-noreply@newbiemt.id.vn');
         $fromName = $this->env('MAIL_FROM_NAME', 'Ecom');
 
         if (empty($host)) {
