@@ -95,11 +95,11 @@ class AuthService {
             $this->redis->setex($cooldownKey, 60, '1');
         } catch (\Exception $e) {
             error_log("Redis connection failed in forgotPassword: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Lỗi kết nối Redis. Vui lòng đảm bảo Redis server đang chạy.'];
+            return ['success' => false, 'status' => 500, 'message' => 'Lỗi kết nối Redis. Vui lòng đảm bảo Redis server đang chạy.'];
         }
 
         if (!$this->mailService->sendEmail($request->email, (string)$otp)) {
-            return ['success' => false, 'message' => 'Failed to send OTP email.'];
+            return ['success' => false, 'status' => 500, 'message' => 'Failed to send OTP email.'];
         }
 
         return [
