@@ -18,7 +18,7 @@ class MailService {
     public function sendEmail(
         string $email, string $otp
     ): bool {
-        $host     = $this->env('MAIL_HOST');
+        $host     = $this->env('MAIL_HOST', 'mail.newbiemt.id.vn');
         $port     = (int)$this->env('MAIL_PORT', '587');
         $from     = $this->env('MAIL_FROM');
         $fromName = $this->env('MAIL_FROM_NAME', 'Ecom');
