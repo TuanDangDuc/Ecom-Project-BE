@@ -98,8 +98,14 @@ class AuthService {
             return ['success' => false, 'status' => 500, 'message' => 'Lỗi kết nối Redis. Vui lòng đảm bảo Redis server đang chạy.'];
         }
 
-        if (!$this->mailService->sendEmail($request->email, (string)$otp)) {
-            return ['success' => false, 'status' => 500, 'message' => 'Failed to send OTP email.'];
+        try {
+            $sent = $this->mailService->sendEmail($request->email, (string)$otp);
+        } catch (\Throwable $e) {
+            return ['success' => false, 'status' => 500, 'message' => 'SMTP error: ' . $e->getMessage()];
+        }
+
+        if (!$sent) {
+            return ['success' => false, 'status' => 500, 'message' => 'Failed to send OTP email (sendEmail returned false).'];
         }
 
         return [
