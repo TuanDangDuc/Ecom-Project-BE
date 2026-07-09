@@ -5,6 +5,14 @@ use PHPMailer\PHPMailer\Exception;
 
 class MailService {
 
+    private function env(string $key, string $default = ''): string
+    {
+        $value = $_ENV[$key] ?? getenv($key);
+        if ($value === false || $value === null) {
+            return $default;
+        }
+        return trim((string)$value);
+    }
 
     public function sendEmail(
         string $email, string $otp
@@ -12,10 +20,15 @@ class MailService {
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
-            $mail->Host = $_ENV['MAIL_HOST'];
+            $mail->Host = $this->env('MAIL_HOST');
 
-            $username = $_ENV['MAIL_USERNAME'];
-            $password = $_ENV['MAIL_PASSWORD'];
+            if (empty($mail->Host)) {
+                error_log('MailService: missing MAIL_HOST; aborting sendEmail');
+                return false;
+            }
+
+            $username = $this->env('MAIL_USERNAME');
+            $password = $this->env('MAIL_PASSWORD');
             $mail->SMTPAuth = !empty($username);
             if ($mail->SMTPAuth) {
                 $mail->Username = $username;
@@ -23,11 +36,11 @@ class MailService {
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             }
 
-            $mail->Port = (int)($_ENV['MAIL_PORT'] ?: 587);
+            $mail->Port = (int)$this->env('MAIL_PORT', '587');
 
             
-            $from =  $_ENV['MAIL_FROM'];
-            $fromName =  $_ENV['MAIL_FROM_NAME'];
+            $from =  $this->env('MAIL_FROM');
+            $fromName =  $this->env('MAIL_FROM_NAME');
 
             if (empty($from) || !filter_var($from, FILTER_VALIDATE_EMAIL)) {
                 error_log('MailService: missing or invalid MAIL_FROM; aborting sendEmail');
